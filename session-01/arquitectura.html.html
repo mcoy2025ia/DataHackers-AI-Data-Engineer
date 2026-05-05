@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitectura de Datos - Bancolombia</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: rgba(28, 28, 30, 0.6);
+            --accent-blue: #2997ff;
+            --accent-gold: #f5c800;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+            --border-color: rgba(255, 255, 255, 0.15);
+            --glass: blur(20px) saturate(180%);
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* Header & Logo */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bancolombia-logo {
+            height: 45px;
+            margin-bottom: 24px;
+            /* Convierte el logo a blanco puro para diseño sobrio tipo Apple */
+            filter: brightness(0) invert(1); 
+            opacity: 0.9;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin: 0 0 12px 0;
+            background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Sections & Cards */
+        .layer-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .layer-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .layer-title::after {
+            content: "";
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-color) 0%, transparent 100%);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(41, 151, 255, 0.1);
+        }
+
+        .card i {
+            font-size: 22px;
+            margin-bottom: 16px;
+            color: var(--accent-blue);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Animated Vertical Data Flows (Arrows) */
+        .flow-vertical {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+            position: relative;
+        }
+
+        .flow-line {
+            width: 2px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-line::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, transparent, var(--accent-blue), transparent);
+            animation: flowDown 1.5s infinite linear;
+        }
+
+        .flow-arrow-head {
+            position: absolute;
+            bottom: -5px;
+            color: var(--accent-blue);
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @keyframes flowDown {
+            0% { top: -50%; }
+            100% { top: 100%; }
+        }
+
+        /* Medallion Pipeline Styles (Horizontal Flow) */
+        .medallion-pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 15px;
+        }
+
+        .medallion-pipeline .card {
+            flex: 1;
+        }
+
+        .flow-horizontal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--border-color);
+            font-size: 20px;
+            position: relative;
+        }
+
+        .flow-horizontal i {
+            color: rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-horizontal i::after {
+            content: '\f061'; /* FontAwesome arrow-right */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--accent-blue);
+            clip-path: inset(0 100% 0 0);
+            animation: flowRight 2s infinite linear;
+        }
+
+        @keyframes flowRight {
+            0% { clip-path: inset(0 100% 0 0); }
+            50% { clip-path: inset(0 0 0 0); }
+            100% { clip-path: inset(0 0 0 100%); }
+        }
+
+        .bronze { border-top: 3px solid #cd7f32; }
+        .silver { border-top: 3px solid #c0c0c0; }
+        .gold { border-top: 3px solid #ffd700; }
+
+        .bronze i.icon-m { color: #cd7f32; }
+        .silver i.icon-m { color: #c0c0c0; }
+        .gold i.icon-m { color: #ffd700; }
+
+        /* Tech Bar */
+        .tech-bar {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px 32px;
+            margin-top: 30px;
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            letter-spacing: 0.5px;
+        }
+
+        .tech-bar span { color: var(--text-primary); font-weight: 500; margin: 0 8px; }
+
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            padding-bottom: 40px;
+            font-size: 12px;
+            color: rgba(134, 134, 139, 0.6);
+        }
+
+        @media (max-width: 900px) {
+            .medallion-pipeline { flex-direction: column; }
+            .flow-horizontal { height: 40px; transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <!-- Logo de Bancolombia monocromático -->
+        <img src="https://e7.pngegg.com/pngimages/819/1006/png-clipart-bancolombia-logo-icons-logos-emojis-iconic-brands-thumbnail.png" alt="Bancolombia" class="bancolombia-logo">
+        
+        <h1>Arquitectura Moderna de Datos</h1>
+        <p class="subtitle">Estrategia AWS-first híbrida: Medallion Lakehouse sobre Amazon S3 para la evolución del COREX y servicios digitales.</p>
+    </header>
+
+    <!-- FUENTES -->
+    <section class="layer-section">
+        <div class="layer-title"><i class="fas fa-database"></i> Fuentes de Datos</div>
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-server"></i>
+                <h3>COREX + Legado</h3>
+                <p>Thought Machine Vault + CDC.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Canales Digitales</h3>
+                <p>App Personas + Sucursal Virtual.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-qrcode"></i>
+                <h3>Pagos & Redes</h3>
+                <p>Nequi, QR, Bre-B, Cajeros.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-cloud"></i>
+                <h3>Ecosistema Externo</h3>
+                <p>CRM Salesforce (33M+ registros) y Open Finance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flecha Animada -->
+    <div class="flow-vertical">
+        <div class="flow-line"></div>
+        <i class="fas fa-chevron-down flow-arrow-head"></i>
+    </div>
+
+    <!-- INGESTA -->
+    <section class="layer-section">
+        <div class="layer-title"><i class="fas fa-network-wired"></i> Capa de Ingesta</div>
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-stream"></i>
+                <h3>Streaming de Eventos</h3>
+                <p>Amazon Kinesis & Amazon MSK (Kafka).</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-sync-alt"></i>
+                <h3>Replicación Transaccional</h3>
+                <p>AWS DMS + CDC desde el core legado.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-project-diagram"></i>
+                <h3>Orquestación Batch</h3>
+                <p>AWS Glue API + AWS MWAA / Airflow (DAGs).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flecha Animada -->
+    <div class="flow-vertical">
+        <div class="flow-line"></div>
+        <i class="fas fa-chevron-down flow-arrow-head"></i>
+    </div>
+
+    <!-- MEDALLION LAKEHOUSE -->
+    <section class="layer-section">
+        <div class="layer-title"><i class="fas fa-layer-group"></i> Medallion Lakehouse — Amazon S3</div>
+        
+        <div class="medallion-pipeline">
+            <div class="card bronze">
+                <i class="fas fa-box icon-m"></i>
+                <h3>Capa Bronze</h3>
+                <p>Datos crudos e inmutables (S3, Parquet/Avro). Partición por fuente y tiempo.</p>
+            </div>
+            
+            <div class="flow-horizontal">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="card silver">
+                <i class="fas fa-filter icon-m"></i>
+                <h3>Capa Silver</h3>
+                <p>Datos limpios y conformados (Delta/Iceberg). PII tokenizado vía KMS.</p>
+            </div>
+
+            <div class="flow-horizontal">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="card gold">
+                <i class="fas fa-award icon-m"></i>
+                <h3>Capa Gold</h3>
+                <p>Productos de datos listos para consumo (Marts Clientes 360, Fraude, Digital).</p>
+            </div>
+        </div>
+
+        <div class="tech-bar">
+            Procesamiento & Gobierno: <span>Apache Spark (EMR)</span> • <span>dbt Core</span> • <span>AWS Lake Formation</span> • <span>Glue Catalog</span>
+        </div>
+    </section>
+
+    <!-- Flecha Animada -->
+    <div class="flow-vertical">
+        <div class="flow-line"></div>
+        <i class="fas fa-chevron-down flow-arrow-head"></i>
+    </div>
+
+    <!-- CONSUMO -->
+    <section class="layer-section">
+        <div class="layer-title"><i class="fas fa-chart-line"></i> Capa de Consumo</div>
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Dashboards BI</h3>
+                <p>Power BI / QuickSight para C-Level y Finanzas.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-brain"></i>
+                <h3>Modelos ML</h3>
+                <p>SageMaker para Antifraude y Scoring de Crédito.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-bolt"></i>
+                <h3>APIs Tiempo Real</h3>
+                <p>Servicios de Fraude (&lt;200ms) y Crédito (&lt;2s).</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Regulatorio & Compliance</h3>
+                <p>Reportes SFC / SUGEF, prevención AML y KYC.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-bullseye"></i>
+                <h3>Marketing & CRM</h3>
+                <p>Campañas personalizadas mediante segmentos de Salesforce.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Manuel Coy • AI Data Engineer Bootcamp • Investigación Bancolombia<br>
+        Propuesta visual de interfaz fluida (UI/UX) • Inspirado en lineamientos de diseño Apple</p>
+    </footer>
+</div>
+
+</body>
+</html>

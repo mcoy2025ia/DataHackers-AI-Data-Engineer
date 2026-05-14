@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import tenacity, pydantic, pandas, pyarrow, dotenv; print\\('OK'\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import requests; print\\('requests OK'\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\src\\\\pipeline.py\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import ast, sys; ast.parse\\(open\\('src/pipeline.py'\\).read\\(\\)\\); print\\('Syntax OK'\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import streamlit; print\\(streamlit.__version__\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import plotly; print\\('plotly', plotly.__version__\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\USUARIO\\\\Documents\\\\Personales\\\\Datapath\\\\Daniel Santos\\\\Sesion 3\\\\Entrega\\\\Miniproyecto-03\\\\venv_DE_DS_E3\\\\Scripts\\\\python.exe\" -c \"import altair; print\\('altair', altair.__version__\\)\" 2>&1)"
+    ]
+  }
+}

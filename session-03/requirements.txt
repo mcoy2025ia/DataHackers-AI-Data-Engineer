@@ -1,0 +1,13 @@
+# --- Core Data Engineering ---
+requests==2.31.0      # Ingesta de API
+pandas==2.2.0         # Procesamiento y Transformación
+pyarrow==15.0.0       # Soporte de alto rendimiento para Parquet [cite: 22]
+tenacity==8.2.3       # Retries y Exponential Backoff profesional
+pydantic==2.6.1       # Validación de esquemas (Data Contracts) [cite: 20]
+
+# --- Business & Finance ---
+numpy==1.26.4         # Cálculos vectorizados de RSI y Volatilidad [cite: 21]
+python-dotenv==1.0.1  # Gestión segura de API Keys (Finnhub)
+
+# --- Visualization ---
+streamlit==1.31.0     # Dashboard de consumo y salud del pipeline

@@ -1,0 +1,43 @@
+# --- Entorno Virtual ---
+venv/
+.venv/
+env/
+bin/
+lib/
+include/
+venv_DE_DS_E3/
+
+# --- Secretos y Configuración ---
+.env
+*.env
+auth.json
+secrets.yaml
+
+# --- Python Cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Datos (Crucial para DE) ---
+# Ignoramos los datos crudos y los procesados para no ensuciar el git
+data/raw/*
+data/output/*.parquet
+# Pero mantenemos las carpetas vacías (si usas un archivo .gitkeep)
+!data/raw/.gitkeep
+!data/output/.gitkeep
+
+# --- Logs ---
+logs/*.log
+*.log
+
+# --- Visual Studio Code ---
+.vscode/
+.history/
+*.code-workspace
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+# ──────────────────────────────────────────────
+# Pipeline ETL Olist — Dependencias
+# ──────────────────────────────────────────────
+
+# Procesamiento de datos
+pandas>=2.2.0
+
+# Base de datos analítica embebida
+duckdb>=0.10.0
+
+# Cliente HTTP (consumo de API de tasas de cambio)
+requests>=2.31.0
+
+# (Opcional) Testing
+pytest>=8.0.0

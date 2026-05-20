@@ -279,7 +279,7 @@
       <div class="arch-layer l5">
         <span class="layer-num">05</span>
         <span class="layer-name">Razonamiento</span>
-        <span class="layer-desc">Agente <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">MarketExpert</code> vía Groq (Llama 3.3-70b). Solo KPIs procesados en el contexto — el Token Architect garantiza densidad óptima y reduce alucinaciones. Inferencia &lt; 500ms.</span>
+        <span class="layer-desc">Agente <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">MarketExpert</code>: <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">get_sector()</code> → <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">get_peers()</code> → carga Parquet de cada peer → Python calcula <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">avg_sharpe</code> → prompt estructurado → Llama 3.3-70b (temp=0.2) → reporte en &lt; 500ms. El LLM no calcula — razona.</span>
         <span class="layer-tag">MarketExpert</span>
       </div>
       <div class="arch-layer l6">
@@ -495,6 +495,94 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
   </div>
 </section>
 
+<div class="wrapper" style="position:relative;z-index:1;">
+  <div class="reveal" style="padding:40px 24px 8px;max-width:1100px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border-bright));"></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue-glow);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;">// Decisiones con mayor impacto en producción</span>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-bright),transparent);"></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="decision-card reveal" style="margin-top:24px;">
+  <div class="decision-header">
+    <div>
+      <div class="decision-id">DECISIÓN #007</div>
+      <div class="decision-title">Batch Ingestion con Aislamiento de Errores por Ticker</div>
+    </div>
+    <div class="decision-agents">
+      <span class="agent-pill" style="color:#3b82f6;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08)">Senior DE (L5)</span>
+      <span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)">The Caveman</span>
+    </div>
+  </div>
+  <div class="decision-body">
+    El pipeline procesa 18 tickers en un loop con un bloque <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">try/except</code> independiente por cada activo. Si COIN falla por datos inconsistentes de la API, el sistema registra el fallo en <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">pipeline.log</code> y continúa con el siguiente símbolo — el error puntual no colapsa el proceso masivo. Al finalizar se imprime un Batch Run Summary con el estado de cada ticker:
+  </div>
+  <div class="code-block"><span class="code-comment">----------------------------------------------------------------</span>
+  BATCH RUN SUMMARY  —  18 tickers  /  30d window
+<span class="code-comment">----------------------------------------------------------------</span>
+  NVDA    <span class="val-ok">ok</span>  | 22 records | NVDA_data.parquet
+  AAPL    <span class="val-ok">ok</span>  | 22 records | AAPL_data.parquet
+  ...
+  RKLB    <span class="val-ok">ok</span>  | 22 records | RKLB_data.parquet
+<span class="code-comment">----------------------------------------------------------------</span>
+  Processed: <span class="val-ok">18</span>   Failed: <span class="val-ok">0</span>
+<span class="code-comment">----------------------------------------------------------------</span></div>
+  <div class="decision-outcome">✓ Impacto: un ticker roto no degrada el lote. Pausa de 1s entre tickers respeta rate limits. Run de producción 2026-05-13: 18/18 OK.</div>
+</div>
+
+<div class="decision-card reveal" style="margin-top:12px;">
+  <div class="decision-header">
+    <div>
+      <div class="decision-id">DECISIÓN #011</div>
+      <div class="decision-title">KPIs Vectorizados como Contexto LLM — Anti-Alucinación</div>
+    </div>
+    <div class="decision-agents">
+      <span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)">Token Architect</span>
+      <span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)">Trader Experto</span>
+    </div>
+  </div>
+  <div class="decision-body">
+    Enviar datos crudos al LLM produce alucinaciones numéricas. Enviar KPIs procesados produce inteligencia. <strong style="color:var(--silver)">El LLM no calcula — razona.</strong> Separar responsabilidades elimina alucinaciones desde la arquitectura: Python es la capa de verdad, Groq es la capa de razonamiento.
+  </div>
+  <div class="code-block"><span class="code-comment"># ✗ Prompt ingenuo — el modelo calcula mal y alucina</span>
+<span class="code-str">"Analiza estos precios: [185.2, 187.1, 183.4, ...]"</span>
+
+<span class="code-comment"># ✓ Prompt correcto — el modelo razona sobre hechos exactos</span>
+<span class="code-str">"RSI=67.3, Sharpe=4.2, Z-Score=1.8, sector_avg_Sharpe=2.1"</span>
+<span class="code-comment"># avg_sharpe calculado por Python, no por el LLM</span></div>
+  <div class="decision-outcome">✓ Principio: el pre-procesamiento en Python no es overhead — es la capa de verdad que garantiza que el LLM razone sobre hechos, no sobre interpolaciones.</div>
+</div>
+
+<div class="decision-card reveal" style="margin-top:12px;">
+  <div class="decision-header">
+    <div>
+      <div class="decision-id">DECISIÓN #012</div>
+      <div class="decision-title">Post-Mortem 401 — Ciclo de Vida de Secretos en Streamlit</div>
+    </div>
+    <div class="decision-agents">
+      <span class="agent-pill" style="color:#f43f5e;border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08)">SecOps Architect</span>
+    </div>
+  </div>
+  <div class="decision-body">
+    <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">load_dotenv()</code> en el scope global del módulo se ejecuta una sola vez cuando Streamlit importa el archivo. Si el usuario edita el <code style="color:var(--accent-cyan);font-family:'JetBrains Mono',monospace">.env</code> después de iniciar el servidor, los cambios no se reflejan hasta reiniciar el proceso — causando 401 silenciosos en aplicaciones de larga duración.
+  </div>
+  <div class="code-block"><span class="code-comment"># ✗ Incorrecto — load_dotenv() en importación (scope global)</span>
+load_dotenv()
+<span class="code-keyword">class</span> MarketExpert:
+<span class="code-keyword">def</span> __init__(self): ...
+
+<span class="code-comment"># ✓ Correcto — load_dotenv() en punto de uso</span>
+<span class="code-keyword">class</span> MarketExpert:
+<span class="code-keyword">def</span> __init__(self):
+    load_dotenv()  <span class="code-comment"># re-lee .env en cada instanciación</span>
+    api_key = os.getenv(<span class="code-str">"GROQ_API_KEY"</span>)</div>
+  <div class="decision-outcome">✓ Principio: en aplicaciones interactivas de larga duración, los secretos deben cargarse en el punto de uso. El agente se instancia dentro del handler del botón — cada clic re-lee el .env sin reiniciar el servidor.</div>
+</div>
+
+
 <!-- ══ ALPHA SIGNALS ══ -->
 <section>
   <div class="wrapper">
@@ -533,7 +621,8 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
         <div class="signal-formula">MDD = (P − max(P_{t−30..t})) / max(P)</div>
         <div class="signal-desc">Caída máxima desde el pico más reciente en ventana de 30 días. Métrica de riesgo de cola que el Trader exige para evaluar exposición antes de cualquier operación.</div>
         <div class="signal-alert">
-          <span class="alert-sell">MDD &lt; −10% → Alerta de riesgo operativo</span>
+          <span class="val-ok" style="font-family:'JetBrains Mono',monospace;font-size:12px;">MDD = 0% → Price Discovery (nuevos máximos)</span><br>
+          <span class="alert-sell">MDD &lt; −10% → Capitulación / riesgo de capital</span>
         </div>
       </div>
       <div class="signal-card">
@@ -541,7 +630,9 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
         <div class="signal-formula">σ = std(ln(P_t / P_{t−1})) × √252</div>
         <div class="signal-desc">Desviación estándar de los retornos logarítmicos anualizada. Validador de volumen: una anomalía en volatilidad sin correlato en volumen es señal de dato corrupto.</div>
         <div class="signal-alert">
-          <span class="alert-buy">Bajo σ + alto Sharpe → Tendencia limpia</span>
+          <span class="val-ok" style="font-family:'JetBrains Mono',monospace;font-size:12px;">&gt; 3.0 → ELITE (menos del 5% de activos)</span><br>
+          <span class="alert-buy">1.0–3.0 → STRONG &nbsp;·&nbsp; 0.0–1.0 → MODERATE</span><br>
+          <span class="alert-sell">&lt; 0.0 → NEGATIVE — volatilidad supera al retorno</span>
         </div>
       </div>
       <div class="signal-card">
@@ -790,8 +881,6 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
   </div>
 </section>
 
-
-
 <!-- ══ PRODUCCIÓN ══ -->
 <section>
   <div class="wrapper">
@@ -845,6 +934,48 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
 
 <!-- ══ FOOTER ══ -->
 
+
+<!-- ══ DECISION JOURNAL ══ -->
+<section>
+  <div class="wrapper">
+    <div class="section-tag">CLAUDE_LOG.md · 14 Decisiones Arquitectónicas</div>
+    <h2 class="section-title reveal">Decision Journal Completo</h2>
+    <p class="section-body reveal">
+      Cada decisión fue debatida por el comité de agentes, documentada con contexto, alternativas descartadas e impacto operativo. El journal es el artefacto más valioso del proyecto — demuestra que la arquitectura fue pensada, no improvisada.
+    </p>
+
+    <!-- Full decision table -->
+    <div class="case-wrapper reveal" style="margin-top:48px;">
+      <div class="case-header">
+        <span class="case-title">CLAUDE_LOG.md — Índice de Decisiones</span>
+        <span class="case-sector">// 14 decisiones · 6 categorías</span>
+      </div>
+      <table class="case-table">
+        <thead>
+          <tr><th>#</th><th>Decisión</th><th>Categoría</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="val-low">001</td><td style="font-size:13px;color:var(--silver);">Exponential Backoff con tenacity</td><td><span class="agent-pill" style="color:#3b82f6;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);font-size:10px;">Resiliencia</span></td></tr>
+          <tr><td class="val-low">002</td><td style="font-size:13px;color:var(--silver);">Errores retryables vs. terminales — 403 = terminal</td><td><span class="agent-pill" style="color:#f43f5e;border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);font-size:10px;">Resiliencia + SecOps</span></td></tr>
+          <tr><td class="val-low">003</td><td style="font-size:13px;color:var(--silver);">Quarantine (DLQ) vs. Drop para outliers</td><td><span class="agent-pill" style="color:#22d3ee;border-color:rgba(34,211,238,0.3);background:rgba(34,211,238,0.08);font-size:10px;">Calidad de datos</span></td></tr>
+          <tr><td class="val-low">004</td><td style="font-size:13px;color:var(--silver);">Parquet + Snappy vs. CSV</td><td><span class="agent-pill" style="color:#8b5cf6;border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);font-size:10px;">Persistencia</span></td></tr>
+          <tr><td class="val-low">005</td><td style="font-size:13px;color:var(--silver);">Vectorización de métricas avanzadas — prohibición iterrows()</td><td><span class="agent-pill" style="color:#10b981;border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);font-size:10px;">Performance</span></td></tr>
+          <tr><td class="val-low">006</td><td style="font-size:13px;color:var(--silver);">Trader Intelligence — narrativa automática de señales</td><td><span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:10px;">UX / Presentación</span></td></tr>
+          <tr><td class="val-low">007</td><td style="font-size:13px;color:var(--silver);">Batch ingestion con aislamiento de errores por ticker</td><td><span class="agent-pill" style="color:#3b82f6;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);font-size:10px;">Escalabilidad</span></td></tr>
+          <tr><td class="val-low">008</td><td style="font-size:13px;color:var(--silver);">Migración Finnhub → Yahoo Finance — pivot de API</td><td><span class="agent-pill" style="color:#3b82f6;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);font-size:10px;">Resiliencia de fuente</span></td></tr>
+          <tr><td class="val-low">009</td><td style="font-size:13px;color:var(--silver);">Taxonomía sectorial estática — universo de inversión</td><td><span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:10px;">Arquitectura IA</span></td></tr>
+          <tr><td class="val-low">010</td><td style="font-size:13px;color:var(--silver);">Integración agente Groq — Llama 3.3-70b</td><td><span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:10px;">Agentic AI</span></td></tr>
+          <tr><td class="val-low">011</td><td style="font-size:13px;color:var(--silver);">KPIs vectorizados como contexto LLM — anti-alucinación</td><td><span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:10px;">Agentic AI</span></td></tr>
+          <tr><td class="val-low">012</td><td style="font-size:13px;color:var(--silver);">Post-Mortem 401 — ciclo de vida de secretos en Streamlit</td><td><span class="agent-pill" style="color:#f43f5e;border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);font-size:10px;">SecOps</span></td></tr>
+          <tr><td class="val-low">013</td><td style="font-size:13px;color:var(--silver);">Framework de taxonomía — universo de inversión definido</td><td><span class="agent-pill" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);font-size:10px;">Arquitectura</span></td></tr>
+          <tr><td class="val-low">014</td><td style="font-size:13px;color:var(--silver);">Cierre y estabilización del Data Lake sectorial</td><td><span class="agent-pill" style="color:#10b981;border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);font-size:10px;">Entrega final</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
 <!-- ══ VALOR PARA EL TRADER ══ -->
 <section>
   <div class="wrapper">
@@ -871,6 +1002,89 @@ df[<span class="code-str">"rsi_delta"</span>] = df[<span class="code-str">"close
         <div class="signal-desc">Exponential backoff garantiza recuperación autónoma tras caídas de red de hasta ~60s. El Trader acepta la latencia del DE porque el dato que llega es exacto, sin duplicados y con timestamp UTC preservado. Uptime del pipeline: 18/18 tickers en el run de producción del 2026-05-13.</div>
       </div>
     </div>
+  </div>
+</section>
+
+
+<!-- ══ OPERACIÓN Y ESTRUCTURA ══ -->
+<section>
+  <div class="wrapper">
+    <div class="section-tag">Instrucciones de Operación</div>
+    <h2 class="section-title reveal">Comandos y Estructura del Proyecto</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:48px;">
+
+      <!-- Pipeline command -->
+      <div class="signal-card reveal">
+        <div class="signal-name">⚡ Pipeline ETL</div>
+        <div class="signal-desc" style="margin-bottom:12px;">Ingesta masiva de 18 tickers. Imprime Batch Run Summary en stdout y escribe logs completos en <code style="font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)">logs/pipeline.log</code>.</div>
+        <div class="code-block" style="margin:0;">uv run python src/pipeline.py</div>
+      </div>
+
+      <!-- Dashboard command -->
+      <div class="signal-card reveal">
+        <div class="signal-name">🌊 Dashboard Streamlit</div>
+        <div class="signal-desc" style="margin-bottom:12px;">Abre en <code style="font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)">http://localhost:8501</code>. Auto-detecta todos los <code style="font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)">.parquet</code> en <code style="font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)">data/output/</code> como opciones del selector lateral.</div>
+        <div class="code-block" style="margin:0;">uv run streamlit run src/app.py</div>
+      </div>
+
+    </div>
+
+    <!-- Folder structure -->
+    <div class="case-wrapper reveal" style="margin-top:24px;">
+      <div class="case-header">
+        <span class="case-title">Estructura del Proyecto</span>
+        <span class="case-sector">// Miniproyecto-03/</span>
+      </div>
+      <div class="code-block" style="margin:0;border-radius:0 0 20px 20px;border:none;border-top:1px solid var(--border);padding:24px 32px;font-size:12px;line-height:2;">Miniproyecto-03/
+├── src/
+│   ├── <span style="color:#fff;font-weight:600;">pipeline.py</span>              <span class="code-comment"># ETL completo — MarketPipeline</span>
+│   ├── <span style="color:#fff;font-weight:600;">app.py</span>                   <span class="code-comment"># Dashboard Streamlit (4 tabs + Groq)</span>
+│   ├── agents/
+│   │   ├── <span style="color:var(--accent-amber);">market_expert.py</span>     <span class="code-comment"># Agente Groq — análisis valor relativo</span>
+│   │   ├── Business_Analyst.md
+│   │   ├── Data_Engineer.md
+│   │   ├── Trader_Experto.md
+│   │   ├── Token_Architect.md
+│   │   ├── Caveman.md
+│   │   └── Security_Compliance.md
+│   └── utils/
+│       └── <span style="color:var(--accent-cyan);">taxonomy.py</span>          <span class="code-comment"># SECTORS · get_peers() · get_sector()</span>
+├── data/
+│   ├── output/                  <span class="code-comment"># 18 × {SYMBOL}_data.parquet  (git-ignored)</span>
+│   └── raw/quarantine/          <span class="code-comment"># DLQ — outliers Z-Score       (git-ignored)</span>
+├── logs/pipeline.log            <span class="code-comment"># Logs DEBUG completos          (git-ignored)</span>
+├── .env                         <span class="code-comment"># GROQ_API_KEY                  (git-ignored)</span>
+├── CLAUDE.md                    <span class="code-comment"># Guía de desarrollo</span>
+├── CLAUDE_LOG.md                <span class="code-comment"># 14 decisiones técnicas documentadas</span>
+└── README.md</div>
+    </div>
+
+    <!-- Groq flow -->
+    <div class="decision-card reveal" style="margin-top:24px;">
+      <div class="decision-header">
+        <div>
+          <div class="decision-id">FLUJO DE RAZONAMIENTO</div>
+          <div class="decision-title">Análisis de Valor Relativo — Pasos 1 a 8</div>
+        </div>
+        <span class="conviction-badge conv-high">&lt; 500ms end-to-end</span>
+      </div>
+      <div class="decision-body" style="margin-bottom:14px;">Dentro del tab <strong style="color:var(--silver)">Advanced Analytics</strong>, presionar "Ejecutar Análisis de Valor Relativo (Groq)" desencadena este flujo — Python hace el cálculo, el LLM hace el razonamiento.</div>
+      <div class="code-block">1. get_sector(<span class="code-str">"NVDA"</span>)  →  <span class="code-str">"Semiconductors"</span>
+2. get_peers(<span class="code-str">"NVDA"</span>)   →  [<span class="code-str">"AMD"</span>, <span class="code-str">"AVGO"</span>, <span class="code-str">"INTC"</span>]
+3. <span class="code-keyword">for</span> peer → carga último row de {peer}_data.parquet
+4. Extrae {sharpe, zscore} de cada peer
+5. Python calcula avg_sharpe_sector  <span class="code-comment"># no el LLM</span>
+6. Construye prompt estructurado:
+     ACTIVO OBJETIVO: métricas del ticker seleccionado
+     COMPETIDORES:    lista de pares con sus KPIs
+     BENCHMARK:       promedio sectorial pre-calculado
+     TAREA:           4 preguntas + formato Bloomberg
+7. Groq API → Llama 3.3-70b (temperature=0.2, max_tokens=512)
+8. st.chat_message(<span class="code-str">"assistant"</span>).markdown(report)</div>
+      <div class="decision-outcome">✓ Si aparece error de configuración: agregar GROQ_API_KEY al .env y presionar el botón de nuevo — sin reiniciar el servidor (Decisión #012).</div>
+    </div>
+
   </div>
 </section>
 

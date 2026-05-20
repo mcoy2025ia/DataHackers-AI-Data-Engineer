@@ -563,13 +563,13 @@ def view_advanced(df: pd.DataFrame, symbol: str) -> None:
 # ── App layout ─────────────────────────────────────────────────────────────────
 def main() -> None:
     st.set_page_config(
-        page_title="Finnhub Pipeline Dashboard",
+        page_title="Market Intelligence Dashboard",
         layout="wide",
         initial_sidebar_state="expanded",
     )
 
     with st.sidebar:
-        st.title("Finnhub ETL")
+        st.title("Market Pipeline")
         st.caption("Mini-Proyecto 3 — Datapath")
         st.divider()
 
@@ -593,11 +593,11 @@ def main() -> None:
 
         st.divider()
         st.markdown("**Stack**")
-        st.caption("Finnhub · tenacity · Pydantic · pyarrow · Streamlit · Altair")
+        st.caption("yfinance · tenacity · pyarrow · Streamlit · Altair · Groq")
 
     df = load_parquet(str(parquet_path))
 
-    st.title(f"{symbol} — Finnhub Dashboard")
+    st.title(f"{symbol} — Market Intelligence Dashboard")
     last_ts = df.index[-1].strftime("%Y-%m-%d") if not df.empty else "N/A"
     st.caption(f"{len(df)} trading days  |  latest: {last_ts}")
     st.divider()

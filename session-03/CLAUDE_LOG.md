@@ -899,3 +899,24 @@ Ninguno de estos consumidores requiere conocer el schema de antemano — lo leen
 **Toda salida persistente de este pipeline usa Parquet con compresión Snappy.** CSV se admite únicamente para exports puntuales para consumo humano (reportes, presentaciones) — nunca como formato de Data Lake.
 
 Esta política no es negociable desde la Decisión #004 y se formaliza aquí como contrato arquitectónico documentado. Cualquier propuesta de cambio a CSV requiere refutar explícitamente las tres dimensiones técnicas de esta decisión.
+
+---
+
+## Decisión #016 — Z-Score rolling vs. global en validate()
+
+**Fecha:** 2026-05-14
+**Categoría:** Calidad de datos
+
+**Problema detectado:** El Z-Score de outlier usaba mean/std global de la serie.
+Para activos en tendencia, esto marca como "normal" precios que en realidad son
+outliers locales, y como "outlier" precios legítimos del inicio de una tendencia alcista.
+
+**Decisión:** Migrar a rolling Z-Score con ventana adaptativa (min=5, max=20, default=len//3).
+El Z-Score rolling mide la desviación del precio respecto a su tendencia *local*,
+no respecto a la media histórica completa.
+
+**Impacto:** El detector ahora es sensible a spikes intraperiodo (ej: flash crashes,
+errores de feed) sin confundir tendencia sostenida con anomalía.
+
+**Alternativa descartada:** IQR robusto — descartado porque no tiene hiperparámetro
+de ventana temporal, lo que lo hace menos interpretable para el Trader.

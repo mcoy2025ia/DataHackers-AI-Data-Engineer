@@ -4,7 +4,7 @@ Reto 1: Extraction with tenacity Exponential Backoff.
 Reto 2: Quality validation — null % report + Z-Score outlier detection + DLQ quarantine.
 Reto 3: Business transformation — RSI(14) + Realized Volatility + log returns.
 Reto 4: Persistence — Parquet output with Snappy compression via pyarrow.
-Migration note: Finnhub (403 blocked on free tier) -> Yahoo Finance. See CLAUDE_LOG.md #008.
+Migration note: Original provider blocked on free tier -> Yahoo Finance. See CLAUDE_LOG.md #008.
 """
 
 import logging
@@ -100,7 +100,7 @@ class QualityReport:
         logger.info(f"[VALIDATE] --- Quality Report: {self.symbol} [{status}] ---")
         logger.info(f"[VALIDATE]   Total records    : {self.total_records}")
         logger.info(f"[VALIDATE]   Health score     : {self.health_score:.1%}")
-        logger.info(f"[VALIDATE]   Z-Score outliers : {self.outlier_count} (|Z|>{Z_SCORE_THRESHOLD})")
+        logger.info(f"[VALIDATE]   Z-Score outliers : {self.outlier_count} (rolling |Z|>{Z_SCORE_THRESHOLD})")
         logger.info(f"[VALIDATE]   OHLCV violations : {self.ohlcv_violations}")
         for col, pct in self.null_pct.items():
             level = logging.WARNING if pct > 0 else logging.DEBUG
@@ -266,14 +266,19 @@ class MarketPipeline:
             )
 
         # ── 3. Z-Score outlier detection on close price ────────────────────────
-        mean_c = df["close"].mean()
-        std_c  = df["close"].std(ddof=1)
+        # Rolling Z-Score: detecta outliers relativos a la tendencia local,
+        # no a la media global de la serie. Correcto para series con tendencia.
+        # Ventana adaptativa: mínimo 5 observaciones, máximo 20.
+        z_window = min(20, max(5, len(df) // 3))
+        roll_mean = df["close"].rolling(window=z_window, min_periods=5).mean()
+        roll_std  = df["close"].rolling(window=z_window, min_periods=5).std(ddof=1)
 
-        if std_c == 0 or pd.isna(std_c):
-            logger.warning("[VALIDATE] std(close) = 0 — all prices identical, skipping Z-Score")
+        if roll_std.replace(0.0, np.nan).isna().all():
+            logger.warning("[VALIDATE] rolling std(close) = 0 — all prices identical, skipping Z-Score")
             df["_z"] = 0.0
         else:
-            df["_z"] = (df["close"] - mean_c) / std_c
+            df["_z"] = (df["close"] - roll_mean) / roll_std.replace(0.0, np.nan)
+            df["_z"] = df["_z"].fillna(0.0)  # primeras filas sin ventana completa → no outlier
 
         outlier_mask  = df["_z"].abs() > Z_SCORE_THRESHOLD
         outlier_df    = df[outlier_mask].copy()
@@ -530,7 +535,7 @@ if __name__ == "__main__":
         "INTC", "NFLX", "COIN", "CRWD", "NOW",
         "CRM",  "JPM",  "RKLB",
     ]
-    DAYS             = 30
+    DAYS             = 252
     RATE_LIMIT_PAUSE = 1  # yfinance is permissive; SecOps mandates courtesy pauses
 
     logger.info("=" * 60)

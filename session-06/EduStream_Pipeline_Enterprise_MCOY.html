@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduStream Pipeline Enterprise · MCOY AI + Data Strategy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --black:    #05070d;
+    --bg:       #090c14;
+    --bg2:      #0d1120;
+    --bg3:      #111827;
+    --border:   #1e2a40;
+    --border2:  #243352;
+    --blue1:    #1a56db;
+    --blue2:    #3b82f6;
+    --cyan:     #38bdf8;
+    --cyan2:    #7dd3fc;
+    --silver:   #94a3b8;
+    --text:     #e2e8f0;
+    --text2:    #94a3b8;
+    --text3:    #64748b;
+    --bronze:   #cd7f32;
+    --gold:     #f59e0b;
+    --green:    #10b981;
+    --red:      #ef4444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ── GRID NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(180deg, #040608 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 40px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+
+  .logo-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .logo-wrap img {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 0 16px rgba(56,189,248,0.4));
+  }
+
+  .brand-text { text-align: left; }
+
+  .brand-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #fff;
+  }
+
+  .brand-name span { color: var(--cyan); }
+
+  .brand-sub {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--cyan), var(--blue2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 580px;
+    margin: 0 auto 28px;
+  }
+
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-blue  { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.4); color: var(--blue2); }
+  .badge-cyan  { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.35); color: var(--cyan); }
+  .badge-green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.35); color: var(--green); }
+  .badge-gray  { background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.2); color: var(--text2); }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── SECTION ── */
+  section { margin: 60px 0; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 20px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--cyan);
+  }
+
+  h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  p { color: var(--text2); margin-bottom: 12px; line-height: 1.75; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border2); }
+
+  .card-accent {
+    border-top: 2px solid var(--cyan);
+  }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+
+  /* ── METRIC CARDS ── */
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    overflow-x: auto;
+  }
+
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    min-width: 680px;
+  }
+
+  .arch-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .arch-box {
+    padding: 14px 20px;
+    border-radius: 8px;
+    border: 1px solid;
+    text-align: center;
+    min-width: 130px;
+  }
+
+  .arch-box-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .arch-box-items {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.7;
+    opacity: 0.75;
+  }
+
+  .arch-source  { background: rgba(100,116,139,0.12); border-color: rgba(100,116,139,0.4); }
+  .arch-source  .arch-box-title { color: var(--silver); }
+  .arch-bronze  { background: rgba(205,127,50,0.1); border-color: rgba(205,127,50,0.4); }
+  .arch-bronze  .arch-box-title { color: var(--bronze); }
+  .arch-silver  { background: rgba(148,163,184,0.1); border-color: rgba(148,163,184,0.4); }
+  .arch-silver  .arch-box-title { color: #c0c8d8; }
+  .arch-dim     { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.4); }
+  .arch-dim     .arch-box-title { color: #a78bfa; }
+  .arch-gold    { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); }
+  .arch-gold    .arch-box-title { color: var(--gold); }
+  .arch-dlt     { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.3); }
+  .arch-dlt     .arch-box-title { color: var(--cyan); }
+
+  .arch-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+
+  .arch-arrow-line {
+    width: 36px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border2), var(--cyan));
+    position: relative;
+  }
+
+  .arch-arrow-line::after {
+    content: '▶';
+    position: absolute;
+    right: -7px;
+    top: -6px;
+    font-size: 8px;
+    color: var(--cyan);
+  }
+
+  .arch-arrow-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  /* ── TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(30,42,64,0.5);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan2);
+  }
+
+  tr:hover td { background: rgba(56,189,248,0.03); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #030508;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: var(--text2);
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block .kw  { color: #c084fc; }
+  .code-block .fn  { color: var(--cyan); }
+  .code-block .str { color: #86efac; }
+  .code-block .cm  { color: var(--text3); font-style: italic; }
+  .code-block .num { color: var(--gold); }
+
+  .code-lang {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  /* ── ADR ACCORDION ── */
+  .adr-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .adr-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .adr-header:hover { background: rgba(56,189,248,0.04); }
+
+  .adr-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.25);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .adr-title { font-weight: 500; color: var(--text); font-size: 14px; flex: 1; }
+
+  .adr-chevron {
+    color: var(--text3);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .adr-item.open .adr-chevron { transform: rotate(180deg); }
+
+  .adr-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .adr-item.open .adr-body { display: block; }
+
+  .adr-body p { margin-top: 14px; }
+
+  .decision-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+
+  .decision-badge.accepted  { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .decision-badge.rejected  { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+  .decision-badge.deferred  { background: rgba(245,158,11,0.1); color: var(--gold); border: 1px solid rgba(245,158,11,0.25); }
+
+  /* ── DQ TABLE ── */
+  .dq-row td:nth-child(3) { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  .sev-block { color: #f87171; font-weight: 600; }
+  .sev-warn  { color: var(--gold); font-weight: 600; }
+  .sev-drop  { color: #fb923c; font-weight: 600; }
+  .sev-fail  { color: #f43f5e; font-weight: 600; }
+
+  /* ── COMPARISON TABLE ── */
+  .check { color: var(--green); }
+  .cross { color: #f87171; }
+
+  .comp-table td:first-child { color: var(--text2); font-family: inherit; }
+  .comp-table td { text-align: center; }
+  .comp-table td:first-child { text-align: left; }
+
+  /* ── FILE TREE ── */
+  .file-tree {
+    background: #030508;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 2;
+    color: var(--text2);
+  }
+
+  .ft-dir  { color: var(--cyan2); }
+  .ft-file { color: var(--text2); }
+  .ft-note { color: var(--text3); margin-left: 8px; font-size: 11px; }
+
+  /* ── TEST RESULTS ── */
+  .test-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 5px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.2);
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .test-pass { color: var(--green); font-size: 13px; }
+  .test-name { color: var(--text); flex: 1; }
+  .test-time { color: var(--text3); font-size: 11px; }
+
+  .test-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 6px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--green);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  footer img {
+    width: 48px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 8px rgba(56,189,248,0.3));
+  }
+
+  footer p { font-size: 12px; color: var(--text3); }
+
+  /* ── SCD2 DIAGRAM ── */
+  .scd2-wrap {
+    overflow-x: auto;
+  }
+
+  .scd2-table {
+    min-width: 700px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .scd2-table th {
+    background: rgba(56,189,248,0.08);
+    color: var(--cyan);
+    font-size: 10px;
+  }
+
+  .scd2-row-current td { background: rgba(16,185,129,0.06); }
+  .scd2-row-hist    td { background: rgba(239,68,68,0.04); opacity: 0.65; }
+
+  .tag-current { background: rgba(16,185,129,0.15); color: var(--green); padding: 1px 6px; border-radius: 3px; font-size: 10px; }
+  .tag-hist    { background: rgba(100,116,139,0.15); color: var(--text3); padding: 1px 6px; border-radius: 3px; font-size: 10px; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 6px; bottom: 6px;
+    width: 1px;
+    background: linear-gradient(180deg, var(--cyan), transparent);
+  }
+
+  .tl-item { position: relative; margin-bottom: 24px; }
+  .tl-dot {
+    position: absolute;
+    left: -21px; top: 4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 2px solid var(--bg2);
+    box-shadow: 0 0 6px var(--cyan);
+  }
+
+  .tl-layer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+
+  .tl-desc { color: var(--text2); font-size: 13.5px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2), transparent);
+    margin: 48px 0;
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: rgba(56,189,248,0.06);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-left: 3px solid var(--cyan);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-top: 16px;
+  }
+
+  .highlight p { color: var(--text); margin: 0; font-size: 13.5px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+    .logo-wrap { flex-direction: column; gap: 12px; text-align: center; }
+    .brand-text { text-align: center; }
+    .arch { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header>
+  <div class="logo-wrap">
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAFnASgDASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAcBBQYIAwQJAv/EAFwQAAEDAgMFBAINBAsNBwUAAAEAAgMEBQYHERIhMUFRCBNhcSKBFBUyQlJikaGxs8HC0iNydLIWFzM1Q0ZHU2Nk0QkkJzQ3RVRlc4KFkpUlJkRXddPwNpOio+H/xAAbAQEAAgMBAQAAAAAAAAAAAAAAAQUCAwQGB//EADURAAIBAwEEBwgDAAIDAAAAAAABAgMEEQUSITFBBhMiUWFxgRQyobHB0eHwNDWRFSMkJTP/2gAMAwEAAhEDEQA/ANNUREAREQBERAEREAREQBERAEREAREQBEXJBFJPMyKGN8j3kNa1g1JPQDmi3g+EUhxZOY6fafZ5t0UTtnaFK+ZomI/N4A+BIKwOspaiiqX01VBJBPG4tkjkaWuaehBW+pb1aaTnFrPeaqdanUbUJJ4OuiItBtCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgKpwKvmFsLXrEtWILXRukA93K70Y2ebvs4qecv8AKmxWAR1dzDLrcBvDpGfkYz8Vh4nxPyBWdjpVxd74rEe98Dgu9Ro2vvPL7lx/BE2XuV+IcWysn7s2+2k+lVTtI2h8RvFx+bxWxeBMvsN4Oga620pnri3R9ZP6Up8uTR4D512rziKy4cofZd4r4aOED0Q4+k7wa0bz6lB+Ymdt0uhkoMMCS2UR3GpP+MSDw5MHlv8AFXfU2emLM3mfx/zkVHW3eovEViPw/wB5k81t4tkVzbbJLlSNrnN2m05maJCPLisaxvhaxYlpyy60TXTNGjKhnoys8nc/I7lqg+eZ9QZ5JpHzOdtGRziXE9deOqz/AAbmrd7TGyiu21cqMbg5zvysY8He+HgflS21u3rSdO4hiL9V6k1tIrUkp0JZa9P8OtjTLW72LbqaHW5UQ37cbfyjB8Zv2hYIdx0O4rZ2x4htV+p++ttYybT3UZ3PZ5tO9WDF2BbHfQ6ZkYoqw7+/haAHH4zeB+YrK76Owqx62zlld2d3oxba3KlLq7qPr90QAiyDFOFLrh+Q+you8gJ0bOzew+fQ+ax9eVrUalCbhUjh+J6GlVhUjtweUUREWk2BERAEREAREQBERAERVCAaIqooyD5REUgIiICoQqiIAiIgCIiAKq+o2ukeGsaXOJ0AA1JWbYXy/rK/YnubzR0537Gn5Rw8uXrXXa2da6nsUo5ZouLmlQjtVHgw+30NXcKltNRU8tRM7gyNupUoYSyvhDY6jEExe47/AGLEdAPBzufq+VZnZbRbbJR9xQU7IIwNXuPuneLjzVgxNmLa7SHQW8tr6obvRd+TafE8/UvWUdGtNPh1t5JN93L0XFnnaup3N7Lq7aLS7+f4JGopLZZbYADTUNHC3qGMYFgOMs54aYvo8MQMqX6aGrmBDAfis4nzO7wUQ4ixDdb9P3tyq3yAHVkYOjGeTVaVXXvSCU11dstmPfz/AAddpokIPbrvafdy/J37xdLhd619ZcquWqnedS+R2vqHQeAXQJVEXm5ycnmTyy9SUVhBERYknZoaypoallRSTvglYdWvY7QhSZhTND0W02IIyeAFTE353N+0fIor5pzXfZajcWctqlL05P0OW6s6NzHFRevM2PbVUdzpBLBNDVU0g01aQ5p8D/YVg+KsvaOsa6os+zS1HExOP5N/l8H6FHNmvNys9R31BVPi3728Wu8xwKkrDOYFDXBsF0a2knO7vB+5u/D6162jqlhqkFSuo7Mv3g+XqedqWF3YS27d5X7xXMjK6WuvtdQYK+llgfyDxuPiDwK6K2IrqSiulCYaqGKogkGo13jzB+0KN8R5eTwl01nl76Pee5edHjwB5qq1Ho3Wodu37cfj+fQsLLXKVbs1uy/h+CPkXNVU81LM6GeJ8cjdzmvboQuFeacWnhl2mmsoIiLEkIiIAiIgCIiA+tUXyiYAREQBFUJogKIqkKiAIi5aennqH7MEMkrujGlx+ZTFNvCIbS3s4lUL7mhlhkLJo3xvHFr2kH5CqwRyTytihjfJI8hrWMaSXHoAOKSTTwyU88DOssKmxU7nmqdDHXE/k3zbtB4E7gVmF8xXaLTDtGpbPMRq2KFwcT5ngFHM+XuPqag9sKjBOJIqPZ2u/fbJgzZ66lumixjwI0V7aa9UtaHVU4LPeVNxpFO4rdZOT8jJcT4xu96a6B8vsel/mYiQD+ceLvoWMnirthXD17xRf6Wx2C2z3G41LtmKCJupPUnkAOJJ3Dmtwsoux1aKaliuGZVwlr6tw2jbaKUshj8HSD0nn83QeJVRXuKtxPbqSyyyp0oUo7NNYRpMi9OK/s85OVNrfQfsHoIGlmyJonPbK3dxDtddfNaG5+5Y3DKrHk1jqHSVFvmHfW2sLdBPETz5bTTuI9fMLS1gzyRyiIoJCIiAqm5OSvWEMP1uJ71FbaNugPpSyEejGwcXH/5vK2U4SqSUYrLZjOcYRcpPCRZjpyVFsXT5eYUoqNtM61x1Dg3R0shJe49eO71LCsW5a0xLp7HMYXfzMrtWnydxHrV3U6O3cYbUcPwXEqoa1bTlsvK8WYPhvFF1sbwKeYyU+vpQSHVh8uh8lJNhxlZ7s0RvlFJUc2SkaHydwKiS6W6sttSaatgfDKN+jhxHUHmF01rstZvLB7D3pcny+qNl1ptteLaW5vmv3eSdmhWWSa3Mj24Z64H8m6NwJY3nqRy8FGJXcp7bcaqPvKeiqZmfCZG5w+YLrTRvjkMcjHMe3cWuGhC5dRuKl1VdaUNnP7xOizoQt6fVRlnBxovpjHSODWNLiToABqSuaooqunaHz0s8LTwL4y0H5VwqEmspHU2k8HXREWBIREQBV5KiIAiIgCIiA+gi+VXVRgFSvlEUgry81MWDaKCkw5RmBrQZYhJI8cXOPHf83qUO6btVJuVlfNUWyeklftMpnDu+oDtSR5ar03RepBXjhJb5J4fcUuvQk7baT3J7z7zIo4JbA6peB3sL27D+ehOhH/zop5/ueWBLPU0d4x9XU8dRXU9V7Boi9oPcAMDnvHRx2gNegPVa65sVczZqSgDtInMMpaObtSApR7FGcFpwBfLjhrFFW2js11c2WOqf7innaNPS6Nc3dryIC0dJJwlfSUVwST8WbdFhKNom3xy0egBWhfb+wHZ8M42s2JrPSw0bb9FMKqGNga0zRFusgA3AuDxr4jXmt2qbFuF6u2TXOjxBa6qjgiMss0FUyRrGDmdkleefa1zYizRx9F7VtkjsdoY+no+8BDpXE/lJSOWugAHHRo1VAWpKH9zeZavbzF0kndG7NpqcQ7XuhAXO29nw2tjX1LdFxXkzlzjK94CxdQ4nsFV3FZSu3g72SsPuo3jm1w3H5RvC9MMocxbJmZgqmxHZ3hjnDYq6VztX00wHpMd9IPMLKJDZl8z9yjzOvL+y5mYLqMP3ZrY526yUNWG6vpZtNzh4HgRzHqWeTu3K31LuK6IRzuZonLB5WY1wzd8HYlrMPXumdBW0kha4cnjk9p5tI3gqyLf3tKZTU2Y1hNXb4oocRULSaWY7u+bxMLz0PI8j5laGXKgq7Zcai319PLT1dPIY5oZG6OY4HQgha6tJ034GdKoprxOqiLkhiknlZDExz5HuDWtaNS4ngAFpNp2bPbqy7XKG3UELp6md4ZGxvM/YPFbKYBwlTYRsopmlstbNo6qmHvndB8UcvlXBk/gFmE7X7YXGNrrxVM9Pn3DD7wePU+pZXWvAJ3r2uiaaqS62ou0/h+Ty2q3/AFj6uD7K+P4LbXScVY607WquNc/ed6sF+uNLbLfLW1j9mKMetx5AeJXrNqNOLlJ4SPPtOpJRistmC5vRwe1dI92nf98Qzrs6b/VwWK5f2uK6X5ralofDCwyuYeDtCAAfDUro4lvVVfbm6qqPRaPRijB3Mb0/tK5MI3b2nvMdS4F0RBZKBx2Tz9XFfPLi8oXOpxqtdnK9UubPZ0bWrQsXTT7WH8eSJpjDWNDGANaBoABoAsRzPtcE9kfctgNqacj0xxc0nQg9eKyWnr6KWnbUMqoe6c3UOLwN3rWE5i4moqigfaKGRsxe4GaVu9oA36A8969nrNa1VlJSaeVu8+WDzWmUrh3MdlPc9/lzyUykpKdza6ukY108RYyPX3gIJJHyBZzVU8NdTSUtQwSRStLXB3jzUf5GU011zJtVhbVOp4LjI6KZwbtbgxztdOu5TBnngmowXgKpvFHeTM8zRwACHZIDzoTrqd6pdJ1azoWHV1OKzlY4lnqFhc1bvbhweN/caz1UYiqpYmu2gx5aD10K4lUqi8VJ5luPTrgERFiSVBQqiIAiIgKlUVSqIAiIgCIiAKQsofcXHzj+8o9Uh5QDVlxPjH95XnRz+xp+vyZVa1/Dn6fNHSzc/fij/R/vFYUOKzXN0aXij/R/vFYUtWvf2FTz+iNulfw6fl9Tc/8AufWKcKMsV1wfKylp8Qy1RqWmRo2quHZA2Wk8dkg+j0OvVWztlZBmlfV5kYLpSaeR3eXe3xM/cieM8YHvT74cuPDXTU61V9barjBcbbVTUlZTSCSGeF5a+Nw4EEL0G7LuedDmfY/aK/vggxVSRaTREaMrogNDKwcNfhN5ceB3VUcPcd73HnapHyEzWvOVOLm3Wjaau21OkVxoS7QTx68Wnk8cQfUdxUvdr3IM4fnqsfYLoh7SvJkuVFEP8TcTvkaP5s89Pcnw4atlQ04sbmj1fwrie0YuwzQ4isdW2pt9bEJInjiOrXDk4HcRyIXPO/XVef8A2ZM46nLe/m2XSSWbDVfIPZMYOvsd/Dvmj9Ycx5Le6lr6W4UMFdQ1MVTS1DBJDNG7aa9pGoIPRd1BqaOSqnFnxVu4rXPtR5Rx4np5sX4egDb3Tx61UDG/44xo4j44Hyjd0Ww9U7cVZ6x+8lWEaKqR2ZHBKs6ctpHma5rmuLHAhwOhBGhBWw+Q2XAt1HFiq+U4NbM3aoYXj9xaffkfCPLoFKGI8qMGV2Mm4nlt2k+13kkDTpDJJye5vX5ir1XEAELdp+l7FTbqb8cPuYXuo7dPYhuzxLHWncVYK6TeVe7g7cVjle8Au1IAG/Ur2FCODzVRlqudTDTQyVFRK2OKNpc97uDQOagvHWJn4guJbC5zKCJx7lh3F3xj4n5leMz8YC61BtVueDRRO/KSNP7s4fdHzrAF5LXtY69+z0n2Vxfe/sj02k6b1S62qu0+Hh+R9KkDLvCRqiy7XWP+9xvhid/CH4R8PpXUy/wkbnI243BuzRRu9Bh4yuH3fpWfYnvlJh+3d9JsmUjZggG4uP2ALPRtKhGHtl1ugt6T5+L8DHU9Rk5ezW++T3PH7/vcWzMysttLYH0sjI/ZMwAhYANW6H3XgAogXcutwqrpXSVdXIZJZD6gOQHQBdTRVGrair6vtxWEty8ix0+z9lo7DeXxZIPZv/y34Z8KiT6l62J7W51ydqP02D9YrXTs4a/t3YZ0/wBIk+qetiu1r/kdqdf9Np/1iuGHuM6Ze+jTNERaTaEREAREQBFUIgKIiIAiIgCIiAKRMnh+SuH50f0OUdqRsnP3G4/nR/Q5XvRz+xp+vyKnWv4c/T5o6Gb/AO/NH+j/AHir12e8obnm5iiegp6oW+20LBJXVhZt7AJ0a1o5uO/nyJVmzf3Xij/R/vFbMf3OS5UPtNi2z7bBcPZENTs++dFsluvkD9K1a4v/AGFTz+iNulP/AMOn5fUvVR2M8A+wiyDE+I2VWzulf3Lm69dgMG71rV3MzB2Ksk8zYqT2e6OspXNq7bcabVolZqdHjodQQ5vmN4K9On8Vpr/dGqugdc8G29jmG4xQVU0oHumxOdGGa+Bc1+nkVVSSSO9Mmjs+ZvWnNbCjoasU8V+poti50DgC2QEaGRrTxjdzHLXQ8lrR2r8jGYKrHYswnTOOHal/98UzdXewZCeX9GeXTh0UI4OxLeMI4ko8QWGsfS19I/bjeODhza4c2kbiOa9A8ocxrBm7gh87qeAVPd9xdrZJ6QjcRodx90x2/Q+riFvpqNVYfE01G6b2lwPOI7lsD2Ws6ZsK1kGDcR1G1YamTZpJ5D/iUjjwJ/m3Hj0O/hqrX2lMkazLy4SX2yNfVYXqZdIzvL6Nx4Rv6t+C7nwO/jCei1Jyoz3mx7NWB6eVFSC3UEEHgQrTWTa671r92Y82jX0cWCsR1X99wt2bbPId8rB/BOPwhy6jdyU41M2uuhXpLRxqxUolBdKVOWzI6tdJuO9WCvdx3q51knHerNWO11V1Rjgqasiy1+/VQhnNjGNhksFrn1kJIq5WH3I/mwevX5OqzDOrGzMOUHtbQStN1qW7tOMDD78+J5fKtc5HOkcXPcXOcdSSdSSqvWNWdOLoUnvfF93gWmlacptVqi3Lh4+J8LKsDYYkvEwq6trmUDHbzzkPwR4dSuHBmGpr5V97KHR0MZ/KvHF3xW+P0KTrlV2+wWfbeGwwQt2Yom8XHk0eK5tG0iNVe03O6C7+f4OrU9RdN+z0N838PyfN8vVHh+1h72NGg2IYm7tSOAHgorJumLsQta54dPKd2p0ZGwfQAurf7vVXmufVVTtddzGjg1vQLIMp5YY8QysfoHyQOazXrqD9AKyudQ/5S8hb52aecefj9iKFn/x9tOtjNTBkNLlza2xaVFZVSSab3M2Wj1DQrEca4XmsEkcsUhnpJDoyQjQtPwSphB3rFs0poWYTcyQt7yWZgjGu/UbyR6vpV7q2iWVOznOmtlxWU/p6lTp+qXc7mMZyym8NfvcWPs4HTO3DJ/p5PqXrYjtZnXJ+p/TYP1itduzmdM68NfpEn1T1sP2sT/ggqf0yD9YrwEPdZ6yfvo03REWk3BERAEREAREQBERAEREAREQBSLk2fyVxHxo/oco6Ui5Oe4uPnH95XvRz+xp+vyKrWv4c/T5o6ecP78UX6P8AeKsuBsXYgwTiOnv+GrjJQV8GoD27w5p4tc07nNPQq85wfvxR/o/3isIK069/YVPP6G3Sf4lPy+p6CdmHtBxZm1EuHsSw0duxCxm3AISWx1jAPS2QeDxxLdeG8cFgfbbyWutxr5szcNsqq/8AJNbdaMEvdE1jdBLGOOzoPSaOHHqtQbRcK203OmudtqZaWspZWywTRO2XRvB1BBXoL2Yc+6LM23CxX0w0eLKaPWRjd0dcwDfJGPhfCb6xu4Va37mdz3bzzwKyTLvGt9wJiWC/WCrMNRHukYd8czObHjmD83JbDdrrIQ2mauzAwZSj2tcTNc6CNu+nJO+WMD3nMjlx4cNVFG+DG6SPRnLzGuF84MAzSinilimj9j3O2zaOMTiN7T1aeLXfaFp/2hsoq7La/GoohNVYcrHE0lSRr3R/mnn4Q5HmPWsTyvx1e8vsUw3uyy7x6NTTuP5Ooj13scPoPEFb14XxDhHN3LyV7YWVltrY+5raOXTbhfza7o4cQ4eBC747NzDD95HHLaoSyuDPOynmkgnZNDI+ORjg5r2HRzSOBB5Fbc5GZkxYww6233GZovtEzZmaToahg3CUePI+O/moIzyyvueW2Ie6ftVNoqnuNDV7Puh8B3R4Hy8VhmHL1X2C8013tsxhqad+0w8j1B6gjcVjaXErSt2uHMyuaEbmlu48jeGrlWCZoYypcI2F1W8Nlq5tWUkBPu39T8UcT8nNWWhzlwtU2AV9bUOpq1sZMlHskuLwODTwIPIqAsdYquGLb7Jcq47LR6EEIPoxM5Afaea9Fe6pTo0f+qScnw8PEorTTalSr/2rEVx8S1XW41d0uE1wr5nz1M7i+R7jvJ/s8FccH4fqL9XmMax00ZBml6DoPErgwxZKm+3JtLAC1g3yyabmN6qYYYbdh+y7ILaekp26uceJPU9SVX6PpLvJOvXeILi+/wDBY6lqCtoqjR998PD95CofbrBZi4htPSUzNABxJ6DqSofxPfKm+3Azy+hE06RRA7mt/t6lc+L8RVN9rCdpzKSMnuY+nifFWAqda1dXLVChupx+P4Gl6d1C62rvm/h+e8LOctcOT1NXFd6nbhgidrFpuL3f2fSuLAGEjdZW3GvYRQsPotO7vSPurO8U3ukw7bQ4tYZ3DZggbu10+hoXRo+lRhD226eIR3rxNOpX8pS9mt98nufh+/A4sYYigw/StIa2Wqk/coidN3Nx8FFOIL1X3uq9kVsgOyNGMaNGsHQBde6XCqudZJWVkpkmed5J4DkB0AXUJXBq2s1b6biniHJfVnZp+m07SKbWZ9/2M/7Oe/OvDX6RJ9U9bD9rEf4H6n9Mg/WK147OP+WvDX+3k+peth+1if8ABBU+NZB+sVVw9xnZP30aboiLQbgiIgCIiAIiIAiIgCIiAIiIApHyZGrLn5x/eUcKScl/c3Pzj+8rzo3/AGNP1+RVa1/Dn6fNHQzjGl5ov0f7xWDFZ3nN+/ND+jffKwRate/sKnn9EbdJ/iU/L6lF3bNc7hZbrTXW11UtHW0sglgnido5jhwIK6SKoLA9C+zxndaczrILVd3QUmJ4ItKmlcAGVbdNDJGDxB5t5eShLtT5E09nM+NcD0exbxrJcLfHvEHWSMfA6t5ct3DW+y3Ovs90prpbKqWkrKZ4khmjdo5jhzBXoy+tmuuVj62rcHTVVjdJKdNAXOgJO7zK7KKVWLi+Ry1W6Uk0ebIUjdnjFV5wzmnZWWupcyC5VsNHWQnfHNG94adR1GuoPIqOW8Fk+U50zRwqf9cUv1rVzU21NNHRNJxaZt92xKOCbJGtmlYHPpq2nfE74JL9k/MStG1vZ2wD/gIun6VTfWBaJFbrv/6Gm29wqi+VXXcuU6CWcm4o/aGre0DbNToT4Bo0+krHc2LnVyX6S1mTZpYA0tY3dtOLQdT1O9X3J1+zYqsdan7rVieaB1xnVk/Bj/UC9nezlDQqWy8ZaT8eJ5q2ipatUzvwvsYweO5ZngPB7rts3C4BzKIH0WcDKfw+Kwzmp0wodnC1s8KZn0Kt6PWFK7uG6u9RWcd53azd1Leiur3OTxk48RXqhw5bWve1pdps09OzdtafQB1UOXu51d2uEldWSbb3ncBwaOQA5BcmIbhV3K6zVFXIXv2y0Dk0A7gByCtq16xq07yfVx3QXBfc2abp0LWG098nxYKoiqFRlmZDl1iN2Esb2rEbaYVPsGbbdFtbO20tLXAHkdCdPFSjnbnVacc4ObYLXZ66mc+dksslS9ujQ3gAG666+pY1kHltFmHfattwqJae2W+Nr6gxe7kc4kNY0ncOBJPgpuvPZwwRV0D47XU3G31eye7ldN3jNrltNI4eS2RUtnca5OO1vNQ0VxxJaauw36ustwaGVVFO+CUDhtNOmo8DxVuWs2BERAEREAREQH0V8r6VCoQKIi+gpB8oqlUQBSVkp7i5ecf3lGqkrJRzdm5t1G1rGdPD0ledHP58PX5FVrSzZz9PmjqZzfvzRfo33ysBUyZgYUmv5iq6WdrKmGPYEb/cvGuvHkd6ia6W6tttSYK2nfDIOThx8jzW3pBZ16d3OrKPZlwfLgY6Nc0p20YKXaXFHTREXni3OWCKSomZDBG6SSRwaxjRqXE7gAOZXoxQwVMGVsVDLDI2oZZBE6Ij0g/uNNnTrru0Ws/Yqw1bbpi264gr4WTzWiKP2I128MkeXenp1AboOmq20qJN3FWNpTaW13nBdTy9nuPMqRj45HRyNc17Tsua4aEEciFkeVX+U/C//rFL9a1S52yMMWygvNtxHQwMp57gXxVTWDQSOaAQ/TrodCeegUR5U780MLf+sUv1rVySpuFXZZ1QmqkNpG4vbAOuRVz/AEum+sC0TW9Xa8OuRd0H9apvrAtFncVtu91T0Ndr7hRERch0kqZPjWx1X6R90LE80B/3yqvzI/1AssyfOlhqv0n7rVieZ51xlVfmR/qBey1D+io+a+p5q0/tqnl9jGg0udsjeVOOHQ+PDtvie1zXNp2BzSNCDoo5yyooam8y1EzWv9jsDmNcNRtE6A+pShtaro6K2Uo05XDfvbkjXr90pSVJLhvIMubHxV88crXNc2RwII0I3rqqQs1aOD2NTXBrA2Xb7p5A90NNRr5fao8XltUs3Z3Mqbeef+l/Y3CuKEaiWAqhUVwsdnul8uDLfaKCoraqQ6NjhYXH19B4lVx1E49jS/UdHiK9WKqlZFJXQMmgLjoHOjJBb56O19RWyeILza8P2ua6XetipKSFpc973aeoDmegChfIPJyvwjcnYhxFPAauSmfCyhYA8Rh+mpe7gToNNB1Vv7XVLQUGEbSylpYoZJ64lxaNCQ1h3eW9dEcxjlmiWJSIDzEvwxRje84hbGYmV1W+VjDxazXRoPjoAsfVSqLnzk3hERAEREBXRE1RYgqqFCqKUCoKaqiKQVKoiICqumHrzWWOvFXRubtabL2OGrXjoValVbKVWdKanB4aMZwjOLjJZTJkwzjq13XZgqtKGqPvZHfk3Hwd9hV8ulDR3KmMFbBHPEeAcN48QeSgDXoskw1jC52cthe81NKOEbzvaPinl9C9hYdJ1KPVXscp88fNHnLvQnF9ZavD7vsy84ky+qIQ6oszzURjUmF257fI++WCzwywTOimjfG9p0c1zdCPUptw9ia13pjW00/d1Gm+GTc8eXX1Lmv1htl6j0rYA6QDRsrdz2+vn5Fbrzo9bXkOusZJZ5cvwarfWa9tLqruPrz/ACYt2ecyY8u8WzT3CGWa1V8YhqxENXx6HVsjRz036jmCVtR+27ltPR+ym4ytgZs7Wy5zmv8A+QjXXw0Wm2JsFXC0h09KTWUo3lzR6TR4j7QsTcXA6Ly9SNzYy6upHD8foXsepu47cJZJS7RWY1Nj7ElOy0iVtpoGOZA6QbLpXuPpP05DcAAd+g8Va8g8O3a/5oWOS20Us8VBXQ1VVKB6EMbHhxLjy4bhzWALeDspWu327Je3VlNHH7IuEks1VIB6TnB7mgE+AAXPRUritlmyq1QpYRcu0pbK++5PXegtlNJU1QdFKI4xq5wY8E6DnuWh8jSxxa4FrgdCCNCCvSGtn01AOi0f7RVJR0mbt5joWRsY8xyyNZuAkcwF3rJOvrXbqFtswVT0OSwuNqTp+pHaqNSq6K5YZgiqL9RRTgGN07Q4Hnv4KspU3VnGC5tL/SxqT2YuT5EjZZ0tRRWF/siN0Zll7xgduJbsgA6epYrmfSVLMQvrTE4QTNYGv5EhuhHmpN4cFasX00VVhuuZKBo2IyNJ5ObvBX0e/wBKT01UFL3FleayeNtb9q+65r3tz9cEZ4QvPtLcu+kYXwSN2JGjjp1HiFJUOJLFJCJRc6drdNdHO2XD1cVDScV4/TtcuLGDpxSa8eR6K80ujdy25Np+BlePcQw3eaOlpNTTQknaI023cNfJYxBDJNMyGGN8sjyGsYxpLnE8gBxKkXLDJ3FON5o6juHWu0uOr6yoaRtD4jeLvo8VtHl9lZhDA0UctroBU3AD0q6pAfKT8Xkz1Lhua9W8qurU4s6qMKdtTVOHBED5Y9nu83cwXPF0rrTQO0eKRv8AjMg6HlH69/gFsrhLDNhwtbhb7Ba6ehh09Isb6b/FzjvJ81acf5h4VwTAXXy4t9lEax0cPpzv/wB3kPE6LWbM3PLFGK+8orW51jtTtW91A/8AKyj47/sGnrWp7MCe1UJ6zLzkwhg0SUsU4vF1bu9iUjwQw/HfvDfLefBauZoZhXzH91iq7qIoIKcFtPSw67EYPE795J6lYed51KFaZVHLcbYwUSh4qiIsTMIiIAiIgCIiAIiIAiIgCIiAIiIAiIgPuN7o3BzHFrgdQQdCCs1w9j6upNiC5tNZDw7z+FaPP33r+VYRqi7LS+rWk9ulLHyfmjnr21K4js1I5J4td1oLrT9/QVLZW828HN8xyVpxDhK2XgOkDBS1R3iWMe6Pxhz+lRHRVVTRztnpZpIZW8HMdoVn+HMwGENp70zZPATxt/Wb9o+RewtddtNQh1V7FJ9/L7o85W0m4s5dbayb+f5MWxBhi6WX06iHbhJ0EsZ1b6+nrUlZD5zuwJSSWK8001XZ5JDJG6LTvKdx46A8WnjorzHJS11MHRPiqIJBxBDmuCxHEGA6Ks25ra4Us/ERn9zcfpC57zo5Oi+uspZXd9nzNtvrUKy6q6WH3/vAlfFnaLw1HQvNioayuqyPQEze6jafE66n1LWfEN0rL3eKy73CXvaqqkdLK7lqeQ6AcAOgVLvarhaqgwV1O+I8iRq13keBXRXmLyvXnLYqrGOWMF7bUaNNbVPfnmF9wyvhlZLG4texwc1w4gjgVx8FXVcUW4vKOl7yRbRjykdTtbcoJI5gNC+P0mu8dOSt2MMYsuFEaC3RyRxyHWSR+4uHQDorJhHC9+xZdm2zD1tnrqp28tjHosHVzjuaPElbH5adm2gt5juGOatlxqBoW0FM4iFv579xd5DQeavJ67e1aLoylue5vG8rI6Xa0qnWJb1y5EA5f5fYox1XdxYLc6SJrtJaqT0IYvznfYNStnssMhcM4S7uvvWxfrqBrtSs/veI/EYeJ8XfIFK1NBabBZ9iGOjtdtpWanTZiiiaOZ4AKCc1O0ZbKBsttwPE241W9pr5mkQM/Mad7z4nQeaqVGMd7O1ylLciZMT4jsWF7ca++3KnoKdo9HbdoXacmt4k+AWueaPaMuNxa+34JhktlMdQ6umaDO/8wcGee8+ShPEl/vGI7m+43u4T11S867UjtQ3wA4AeAVqKiVVvciY0kuJzVtVU1tXJV1lTLUTyu2pJZXlznHqSd5XAiLUbSuqoiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAudkvVxtE3e0VQ5mvumHex3mFIuHMcUFwDYbhsUc53BxP5Nx8+XrUUAorbTtZubF4g8x7nw/BwXmm0LtdtYfeuJP8AWUtLXU5hqoY54XD3LhqD4hR9iTAbmPdPZ5Ntm8mF53+o/wBqx/DuKbnZyI45DNTc4ZDq31dFIdhxRbLuAxsnc1B/gnnQnyPAr1cLzTdZioVlsz+Po+Z59217pknKm8x+HquRFJoK41zaEUkzqpzgxsIjJe5x4ADiSp3yy7Nl5ukcVyxrO+0Up9IUUYBqXj43JnzlSh2Y6WmlxXdqp8EL54qJojkcwF7dX79DxHqWa5q5qYMwG2SO63FtRcANW0FMQ+Y+fJo8SQvI6nYqyuJUtrOPqehs7t3NJTxjJcsG4XsWErS21YetsVFT8XbA1fIerncXHzUfZt544WwcJrdbZGXq9N1aYYH6xQu/pH8NfijU9dFAuaOfOLcXtloLa82K0v1a6Gmee9lb0fJx08BoPNREVXufcdSh3mW4/wAxcWY3qS6+XOR1NrqyjiJZAzp6I4nxOpWIIiw4mwrqqIiAIiIAiIgCIiAIiIAiIgCIiAIqkKiAIiIAiIgCIiAIiIAiIgCIiAIiID6CAkHUHQjgQvlVHBQngGXYazGxnhyCqhst8nohVRdzK9rWl5Z0DiNR5jesXqZ5qmd89RNJNLI4ufI9xc5x6kniuEnwTVbJ1J1HtTeX4mMYRisRWASqIiwMgiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiK40dkvNbTioorRX1MJJAkhpnvaSOO8DRAW5FcquxXykgfUVVmuMELPdyS0r2tb5kjQK2oAiIgCIu7SWu51sJmo7bWVMYOyXxQOe0HpqAgOki79TZ7vTQunqbVXwxN3ufJTva0eZIXQQBERAEVzsVhvl/qxS2Oz19znJ0DKWndKdf90LOqXIPOGpiEseX94a0jUd4xrD8hOqAjJFmeIsqsyMPQOnvGCb5SxN91KaRzmD/ebqFhrmua4tcC1wOhBGhCAoiIgCIrxh7DOIsQzd1YbFcro/pSUz5P1QgLOikyHIXOGaETR5fXnZI13sa0/ITqscxJl5jvDrDJfMIXugjGusktG8M3fG00QGLIiIAi5I45JHbMcb3nTXRoJX17Fqf9Hm/5CslGTMdqKOFF9PY5jtl7XNPQjQr5WJkEREARcwpqkgOFPMQd4IYUkpqhjS58ErWjiSwgLLYl3GO3E4URFiZBERAEREAXo32HHd32dLPodNauqP8A+0rzkXoj2JZdOzxZx0qqr60qUQya79b7dfrNV2a700dVQVkLoaiGTeHscNCP/wCrzIz/AMs6/K/MGrsUwfLbptZ7ZVEbpoCd2/4TfckdR4hemzpdOajrP/Li35pYEns04ZFc6fWe2VRG+GbTgT8F3AjyPIJgZPMlF3r5a6+yXirtF0pn01bRyuhnieNCxwOhC4KOmqK2sho6SF89RO8RxRsGrnuJ0AA6kqCTIsrcE3jMLG1DheyxF09S7WWUj0YIh7uR3gB8p0HNen2XOFbNgLCFDhmwwCKjo49ku09KV/vpHHm5x3qNOzFlPTZW4O261kcmJLmxslwmG/uhxbA0/BbzPM+QUumflrv6KUiMkc9reQP7O+Lmu3/3szT/AO6xeZi9Ju1dLtdn7Fg/qzPrGrzZHBQwj7jY6R7WMaXOcdGtA1JPQLcHs79lWnlpafEuaEUmsgElPZA4tIHEGcjfr8QevosW7DeWMF9xBLmBe6YS0NplDLdG8ejJU8dsjmGDTT4xHRbs1NdBS00tVVTMhghYZJZJHaNY0DUknkAFKQyc9itdosNvjt9ktlHbaSMaMhpYWxtA8gu+ZDzC0Yz07Vd+ulwqbNl1KLVa43GP2y01qKjT3zNd0benPy4LXuuxrjGuqHT1mK75PK46lz6+UnX/AJlIPWt0haN4IB6qNc1clsvMxaOVt1slPSXFzSI7jRMEU7D1JA0ePB2q8+sIZvZkYVqmz2jF91AB3w1E5nicOha/UKcLh2urlccsbhb3Wn2DiuVgghqqc/kNl250gB3tcBwG8alRuG815zMw1Bg/HV2w1T3ilvDLfOYfZdOCGvI4jf74cDpqNQd5VmtFtr7vdKa12ukmrK2qkEUEETdp8jydAAF1pZHyyOkkc573Euc5x1JJ4krdTsN5ZU1pw6MxrtT7dzuAcy3B7f3CDXQvHi/fv6DxUEl0yF7K9gsFJBecxoobzd3APbb9rWlpvB3847r73z4rZW201DbaRlHbaOnoqdg0ZFTxCNjfIN3LH8X4ptGE8N1uIL5VNpqCjj25HniejWjm4ncAtGc2u09j3FldNTYcrZcN2bUtjjpTpUSN6vk4gno3QeangYnoc57gdNk6rjfJtNLHjVp3FrhqD6l5KS4qxPJMJpcR3h8oOoe6ulLh69pZ5l7n7mbg2ridDiGqutE0+nRXKQzxuHQF3pN8wUyDc3OTs9YAzCo6ioprfBYL85pMVfRxhjXO/pIxucPHcfFaD5l4DxFl5iiow9iSiMFTF6UUjd8U8eu6RjubT83A6FeiGS2atkzPwqLxa9qmq4HCOuonuBfTyEfO079Hc/MFWjtLZcUuZ2XdRSxxNF7tzXVNrm4HbA3xE/BeBp56HkmCcnnvgrENXhfEdLeKTe6F3psPCRh900+YW3tjultv1oprtb3Mlpalm206DVp5tPQg7itK3sfG90b2Fr2khzSNCCOIUk5H44fh66e09bMRbKx402juhkO4O8AdwPqKv9B1CNCr1VT3ZfBlFrmnO4p9bT96PxRIHaFwXFc7MMSW6ECtom6VLWDfLF182/Rr0WuZGi3RkqWvYWuAc0jQg7wQtZc3cJ/sbxA6WkYRbqsmSA8mHmz1cvBd/SPSth+001u5/c5Oj+o7a9nqPfy+xhCy7KzC5xRiaOCZpFDBpLVOHwQdzfN3D5Vi9JTzVVVHTQRl8srgxjRxJPBbHYBssGF7HFRM2XVD/TqZB795+wcAqzQtMd7XzJdmPH7FlrGoeyUMJ9qXD7kgwCBkTYo42MYwBrWtGgAG4BQZ2gcZNqav9i1ueDDA4OrHt98/lH5Dn4+SzDMfGn7G8PyOgePZ9QDHTj4J5v8AV9Oi1wmkklldJI5znuJc5xOpJPElXfSO/jRj7NT4vj4Lu9Sm0DT3Ul7TU4Lh59/ocaIi8QewCIiAIiIAvQbsWybHZ+tA/rVV9aV58rfjscy7OQlpGv8A4mp+sKyjxMZcC9dqnGFzwXgK14ktD9KqivVO7YJ0bKzZeHMd4OGoWa5eYztOOMI0OJbNMH01UzVzNfSikHuo3eIO751Dfbil2smYm6/51h/VeteuzNmvPlxi0Udxme7Dlye1lazUkQO4CZo6jn1HkFLeGQt6J37ZeUZxJbXY+w7S7V2oYtLjBG3fUwN/hAOb2Dj1b5KwdjLKM0xizHxJS6Pc3/seCRvAHjOR8zfWei2bjrIainZNBKyaGVgcx7TtNe0jcQeYIXG2SKngAGxFDG3d71rGgfMAFOzvG0Vxniy1YQwtXYjvVQIaOjjL3ane93vWN6uJ0ACifspY6u2PxjTE13ee8qLnGyCEHVsEIj9GNvgNfWSStcu1JmzJj7E3tNaahxw5bJCIdDoKqUbnSnw4hvhv5qWuwW/YwTiPfxuMf1YUcxyJV7U8u1kHikf1dn1jV5z8l6EdqGbXIrEzdeMDPrGrz4Gm7XgsZkxPSbs9WeLDWTOGLaxoa91Eypm0GmskvpuJ/wCbT1KPu2/jWoseWdNh6hndFPfKgxyuadD3DBq8eslo8tVLeFpI24XtIj0DBQwbOnTu2rVbt8SSPxNhZup7sUUxHTa7wa/Nos3uRC4ms6Ii1mYREQHYtdI+vuVLQsOj6iZkTT4ucB9q9TMP0VPY7HQWala1kFDTR07A0aDRjQ37F5kZeuY3H2HnSAFoudNrr/tWr0xfP6bt/NZRRjJmrXb3xhPNc7Lgqnmc2niiNdVMDvdPcS2MHyAcfWtVlMnbGklkzwrnSjcKSmDPFux/bqobUPiSuAREUEktdlHF8+E85bS3viyiurva+rZrucH+4Pqfsn5V6CunIPHeF5d4E7wY1sRi12/bGn004/ujV6YSVA23b+ZWcTCR59dpOxRYdzpxFR07Q2nmqBVxNA3ASgPI+UlR0Nx1CmftmFjs7agt4mgp9rz2SoXWD4mS4E9ZR4xN2s/tZWy61tGwAEnfLHwB8xwPqWQYwt1LiKxz22pA9IbUUnON44O/+clrnZbjUWq5QV9K8slidtDoRzB8CNynmy3mC7WyGupnejI30m672O5tPkvougX8L+2dtX3ySx5o8Xq1hKzrq4o7k3nyZiGWWE5rZWy3O6RFs8T3RQMdy03F/wBgUgVdfBSUktVUSCOGFpe9x5ALrOlJKjHNPE3sqX2ko3/kYna1DgfdvHBvkPp8l21nb6HZdj072znpxratd9r18F+/ExnGF9nxBeJa2XVsY9GJmvuGDgPPqrKeqJxXzKtVnWm6k3lvez3VOnGlBQgsJFERFqMwiIgCIiALe3shybORNpH9YqfrCtElvH2TH7ORtpH9YqPrCs4cTGfA6XbYeXZPwj/WkP6r1pStz+2Y/bygjHS5wn5nrTHRRPiIcDaDslZuujbDl/iGp9HXS01EjuH9ASf/AMfk6Lv9rPNw0dLNgHD1SBVTN0us7DviYf4EHqR7roN3NapwyvhlbLE9zHscHNc06FpHAg8ivurnnqqmWpqppKieVxe+SRxc57idSSTvJPVNrdgbO84Ft12GJNnBOIR/rFn1YWoq2w7Ej9jBeIPG4s+rCiHES4EkdpmXayQxI3+hZ9Y1aDclvZ2kJdrJbEY/oWfWNWiimfEiHA9Eclb/AB37KjDdxY8OcaCOKTQ8HxjYcPlaov7auG6i7YJt2IqWMyOtE7mz6DUiKTQa+QcB8qwzseZhRW+rmwLdJwyKrkM1ue47hLp6Uf8AvaajxB6rZq5R01fQT0NbCyemqI3RyxPGrXtI0IKz4ojgzzXRTfmvkHe7LXT1+EYJLtanOLm07TrUQD4OnvwORG/qFDtbabrRSmKstlZTyA6FssDmnX1ha8NGaaZ0kWRYbwTivEVS2Cz2CvqC73/dFrB4lx0ACluu7OF1ocvKy6vuTanEELRM2hgGsewB6TNri5/Mabt2m/VEmw2kQZa6p1Dc6WtZ7qnmZKPNrgfsXpRaLrBdLTSXOmftw1cDJ2HqHNBH0rzPcCCWkEEbiDxC2z7JmYMVzwv+wyvn0uFtaXUocf3WDXgOpaT8hCmD5GM0Y323MNzC9WjF8ERME0PsKocBua9pLma+YJ+Ra3L0TxXaLViewVVjvVOKiiqW7L28C08nNPIg7wVqBmRkjivC9ZNLbKSa9WvUmOenbtSNb0ewbwfEahTKPMRkuBFaLsy0NdFL3UtHUxycNh0Tgfk0WVYNyzxlimrbHb7NUQwE6OqqlpiiYOup4+Q1WGDPJd+zdhyXEWbNpHdF1Nb3+zah3JrWb26+btkLesVB1Ub5RYEtOXuHjQ0bhU19Ro+trC3QyuHAAcmjkPWuTN/HVLgfBVXdHyN9nSNMNBEeMkxG46dG8T5eK2xWFvNTeWapdo6+R3/OG+1ULg+KCVtKxwOoPdtDT84Kjtck0sk8r5pXOfI9xc9zjqXEnUkrjWpm0KRMn5pNmvhL3d2NhwbruBOu9R2s9yldsvuHkz7Vd9HW1qEPX5FXrKzZz9PmjP7tK6K2Vckbi17YXlpHEHZKgV7i57nOJLidSTzKm68ya2is/wBg/wDVKhDqrjpg31lNeD+hX9HF2JvxRREReMPSBERAEREAREQBbs9lSTZyStQ6T1H1hWkyv1qxhim00LaG14hudFSsJLYYKhzGAneSACsovDMZLKNqO2BLtZStb1uMP0OWnKvV4xTiS8UopLrfbjXU4cHiOeoc9u0OB0J4qyqJPLyIrCCIigyC2r7Fu7BN9PW4t+rC1UV5sWKMR2KCSns17r7fDK7bkZTzuYHO001IHNTF4ZEllG5HaJk/wO4hHWFv67Vo8r9dMY4rulHJR3HEV0q6aQaPilqXOa7nvBKsKmTyRFYOWnmlp5mTwyOjljcHse06FrgdQQeRW0mTuflvuVHBZsa1DaK4sAYyvcNIZ+m2feO8eB8FqsihPBLWT0XiqopomzwSslieNWvjcHNcOoI4r4mdHKfyjGP0+E0FaD4fxZiXD7h7TXyuom667Ecx2P8AlO75lk8WdOY8bA39kG14up4yf1Vs20YbDN1YnBrQ1ugHQcFaMWY3w1hGidVX67wUug1bFtbUsh6NYN5+haZ3bNXMG5ROiqMUVzI3cWwkRfO0ArD6meaomdNUTSTSuOrnyOLnHzJUOp3BQ7y/5k3i03/GlyvNktrrbRVUpeyBzgTrzdu3DU79Bw1Vpslzr7NdKe6W2pkpaymeJIpWHQtI+zw5rootZsNuMrs87HiSnhoMQyxWi8aBpc87NPOerXH3JPwT6iVLTJg5gex4c0jUOB1B9a87VkNgxpiqwNDLRf6+ljHCNspLP+U6hbFU7zW4dxvbI2F7tt8cbndS0Equ2TzJWm8Wd2YzIxH7dRu0986ljJ+hWm9ZoY9u8ToazE1aI3DQthIiBH+4Ap20RsM2tzCzNwxgmmf7PrW1Nfp+ToadwdK4/G+CPE/OtSsxsbXnHV/ddLrIGtaC2np2E93Az4I+081jMr3ySOkke573HVznHUk+JXwsJSbM4xSCIixMivJZvlcdl1cfBn2rCOQXYo62roy40tRJDte62Haarv0y7VpcxrSWUsnLe27uaMqSeM/cl28Sf9l1Q/oH/qlQ27ifNd6W8XOWMskr6hzXDQgvOhC6Gq7tb1aOozjKEWsd5z6bYuzjJN5yUREVEWQREQBERAEREARF2KapEP8A4enl/wBozX7UB10V3ivbY/8AMlnf+dTuP3l2mYmjaNP2M4ed50jvxoDHkWTMxZE3jhPDLvOjd+Nc7caQtH/0ZhQ+dE78aAxJFmDccQj+JGED50Lvxrlbj6Bv8Q8GHzt7vxoDCkWcjMOEDT9r/BB87c78a+mZiQtOv7XuBz521340BgiKRIszoGDQ5bYBd52t341yDNOAHdlll7/0p3/uLEEbopLGbFOP5Lsuj52l3419fts0/wD5WZcf9Jd/7iAjJFJv7bVP/wCVmXH/AEh3419DNyAfyV5bn/g7vxrIEYIpQGbsA/kqy2/6O78aftu0+uv7VWW3/R3fjQEXopPdm5Af5K8tv+ju/GuJ+a8Lv5MMuh5Wh340BGqKRHZoRE6/ta5fD/hDvxoc0Ij/ACa5fD/hDvxoCO0UgPzMid/JxgEeVqd+NcTsxoj/ACfYGHla3fjQGCIszlx7G/8AiNgxv5tucPvrhONYz/E3CQ8re78aAxJFlD8XRu/inhgeVE78a4nYpYf4sYcHlRu/EgMcRX92JGH+LmHx5UrvxLiffmu/zDZG+VMfxICyorjLdGv/AM1W1n5sJH3l1JpxINO4gj/Mbp9qA4UREAREQBERAERTD2XcLW66YpuOLMRU0U2H8MUUlbVNnaDHI/ZOwwg7jwJ08AgIeRTN2nsL22lu1kx5hukip8P4roY6qGKFgayCYNG2wAbhyOnXaXcy5t9ul7KOYdfPb6SWshuFO2GofC10kYJj1DXEajjyQEGoiybBmAsX4yiqZcM2CrujKZwbM6EDRhIJAOpHRAYyin7PjJTEdLiKGqwfgmpjs0Nnp5Kp9ONWNmEZMxO07XXXioBQDgqggqcOxfQW24ZpV0Vzt1HXwstE0jYqmFsjNoOZodHAjVZJgzMLBuZmMqXA+Lcs8N0FNc5XUtPW2yHuZoJTqGu1A6jRMA1rJTVZTmHhCqwxmTdMGQl9ZPSVvsaAgelLtEbG7qQQtnL3l3g2XLisyft9uonY2tNkiuzqxsbO+lqNS58e17o7jpp0c1MA0610TUdVm2VuPDgKsr5jhex3w1cbIyy60/eCHZJOrehOuh8lPPaRxtQYQgt1ktuBcKubfLH38k7qFokgdJtN9AtA004gnmmMg1RJ0VNVMHZgw3bKzE1yxhiSmjmw/hiifWVTZWBzJJNk7DCDuPAnTqAux2pcOWtl3seYGGKSOnsGKqCOojjiYGshna0B7NG7gdNDp12kwCF9VVfK2U7H2HbJccN4tvFLZrRf8ZULWe1Vvubh3WyRvcAep1GvgBu1TANbVTUKbu0jdsQ1NBQW/FeVNowlc2VDnC4UNPsNqGBumwCNQd514nlwUgdnbHdBi+nudmuOBcLRtsViNRFMyiaXzOjAaNvUHjxPimAaoggpqOqznHONzjvE1oq5MO2azNp3NiMVug7tkgLwdXDmeS2QzYxLSYYzYpMG0eU+HL3a6uOAyFtrHekSOIcA5rdBpoiQNNUUqdqHCFlwZm1WWvD8Yp6CamiqmU4dqIC8HVg8N2o8CpgyZwfg2wZfYfsWMrZSTXnH7p2wSTRsMlLH3R7stJGrdd2mnvnBMEZNS01HVZhb5qzLPMydtfaaG5VNoqJYH0tdHtwybi3UjyIcPUth8R5j0FqyMwzj2ny+wi+uu1bJTywPoW90wMLwC3drr6A4lCTUhNQp77JMFFiXOq81NxtFvqGTWyqqW0skDXxMeZIyA1rgQNNdB4K85tVuYtFgm6m+5PYVslskZ3L66ClYJIto6NLSHag66clINbV8rYDIXDOFbBlRfs4cX2iK9iiqPYVtt8wBidL6I2nA7jveBv4AEq04szet2M8HXa1VmU2HYqzutaS4W6AsdRbxq92g37teYGvEKAQqinfs3QYbxzhu/wCVV7o6GG518Tqqy3Ewt75kzRqWbem1puB014bS5ca2OhyhyWhw9dbfRS42xM4y1JlibI+gpmnQNaSDsk9RzJ6ICA0REAREQBERAFsThPMzCGWWR9tsttobRiy73ud9ReaOo2u6gboNhj93pEbt3DitdkQGxd4zPwjmRkre8M3m32bCVfantqrHTUocIpXekXNbuOyTvB4a7QWM4CxRh6h7M+OsNV11ghvFwroZKSkcHbcrW93qRu03aHieShsKpTIPlXC2Xi72wPZbbpW0Qk3vFPUOjDjy12SNVb19BASdnPmdUYrxLTVuH7te6ShFqpqWeF87og+VkezIdlriCCeZ481F6qVRATF2TcT4fwpmRV1+JLrDbKOW1zQCeUOI23Fug3A9D8iyvCVHkhltiaLGb8w58WVlE501Fb6OgdHrNv0LnE6bteeg5+C1yRATNlZijDt8z+q8xMe3Kmt1PFLLcmRSBzu8mG6KNugOuzuO/T3IWXWXtM0rcbw3ipy+sFMZqgMqbjEHGrEJIDjtczs8uei1rRTkGcZ3Mw0MzrzU4RuMFfZqyb2VA+EENYX+k5mhA4O19WiyntPYosOKb1heawXOK4R0lhhp53Rhw7uUOcS06gb94UPIoBsRhzMbCWW+R9tsdqpLNiu63qd1ReqOpa8xRDQFrH7hqR6IA4agrsXfM7B2ZGRd7wzeaKzYRuVpeypsdLStcIZXby5rdx2SdXAjcPSC1w1VEyApKyit2Aa6lqn4gx5dMIX6OUOoqqGBzoe703guadra18uHNRqiA2Hztx5h6TJ+lwFBjWqx5dhXNqXXSaEtEDBr6Ic7Uk8uJ4nfwCxbsz4psOF7rima/XKKgjrLFNTQF4ce8kJGjRoDvUQogO1bJGRXCllkOyxkzHOPQBw1W2WJ+0bTW/Omjjtt0pbngh8UTKh8VP6cb3A7Tw4gOOydDp01WoaJkEq5gswxeM/3zyYzjumHa+tjqJrnK57jHCd7o3ajXVoBaNBw0Ug5jdoWy/sv7uzYGw7eqK0ubFbLhVsf3ga3QhzOGyNRu8gtaVUcVOSMEu9pO/YTxferLjHDtdC6uuNvYLtRta4Op52gcdRv46a7/chVxjiew1nZnwbhilucMt3oblPLU0gDtuJhMuhO7TftDnzURIsckkxdkzE+H8J5kV1wxJdobXSS2maBk0gcRtufGQPRBOugJ9SuuPLTgqow7cpY8/q++SsidLDb54pi2d43tZ6TtOPPRQOVRTkjBNWSWYeF4MCXvK/H4qIsPXeXv4ayBu06km9HeR01a06gHQg7tCsgtVTlVlng7GEFpzAfiWvxDaZKCCCnoS0Rkg6Fx10G8+C11RCTIMurm2yY8sF2fVOpI6W4wSyTNJGwwSDbO7fps6rLO0xia24tzkvN5s1yFxtrxEylmbtbOy2NuoaHAEDa1+dRmiAIiIAiIgCIiAIiICoVdURAFQlEUIFERFICIiAIiIAiIgCIiAIiIAiIgCIiAIiICuqoiIAiIgCIiAIiIAiIgCIiA//Z" alt="MCOY AI + Data Strategy">
+    <div class="brand-text">
+      <div class="brand-name">MCO<span>Y</span></div>
+      <div class="brand-sub">AI + Data Strategy</div>
+    </div>
+  </div>
+
+  <h1>EduStream · Pipeline <em>Enterprise</em></h1>
+  <p class="header-sub">
+    Arquitectura medallion production-grade sobre Databricks Free Edition.<br>
+    MERGE idempotente · SCD Type 2 · DQ gating · Delta Live Tables.
+  </p>
+
+  <div class="badge-row">
+    <span class="badge badge-blue">Delta Lake</span>
+    <span class="badge badge-cyan">Unity Catalog</span>
+    <span class="badge badge-cyan">Delta Live Tables</span>
+    <span class="badge badge-blue">PySpark</span>
+    <span class="badge badge-green">10 Tests · PASSED</span>
+    <span class="badge badge-gray">Databricks Free Edition</span>
+    <span class="badge badge-gray">Sesión 06 · AI Data Engineer Bootcamp</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<main>
+
+  <!-- ── MÉTRICAS RÁPIDAS ── -->
+  <section>
+    <div class="section-label">Pipeline at a glance</div>
+    <div class="grid-4">
+      <div class="metric">
+        <div class="metric-value">9</div>
+        <div class="metric-label">Tablas Delta creadas</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">5K+</div>
+        <div class="metric-label">Enrollments sintéticos</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">10</div>
+        <div class="metric-label">Tests · 100% pass</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">5</div>
+        <div class="metric-label">ADRs documentados</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── ARQUITECTURA ── -->
+  <section>
+    <div class="section-label">Arquitectura</div>
+    <h2>Medallion Architecture</h2>
+    <p>Tres capas con responsabilidades únicas. Bronze nunca transforma — es el espejo del raw. Silver limpia y valida. Gold agrega para consumo BI. La dimensión SCD2 cruza todas las capas como fuente de verdad histórica.</p>
+
+    <div class="arch" style="margin-top: 24px;">
+      <div class="arch-flow">
+
+        <div class="arch-node">
+          <div class="arch-box arch-source">
+            <div class="arch-box-title">Source</div>
+            <div class="arch-box-items">
+              enrollments.csv<br>
+              courses.csv<br>
+              progress.csv<br>
+              instructors.csv
+            </div>
+          </div>
+          <div style="font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace;">Volume /landing</div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">Auto Loader<br>+ schema</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box arch-bronze">
+            <div class="arch-box-title">🟫 Bronze</div>
+            <div class="arch-box-items">
+              bronze_enrollments<br>
+              bronze_courses<br>
+              bronze_progress<br>
+              bronze_instructors
+            </div>
+          </div>
+          <div style="font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace;">raw + linaje</div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">MERGE +<br>DQ gating</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box arch-silver">
+            <div class="arch-box-title">⬜ Silver</div>
+            <div class="arch-box-items">
+              silver_enrollments<br>
+              silver_progress<br>
+              _dq_audit
+            </div>
+          </div>
+          <div style="font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace;">validado · dedup</div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">agg +<br>join dim</div>
+        </div>
+
+        <div class="arch-node" style="gap:10px;">
+          <div class="arch-box arch-gold" style="margin-bottom:0;">
+            <div class="arch-box-title">🟡 Gold</div>
+            <div class="arch-box-items">
+              gold_course_perf<br>
+              gold_revenue_cat
+            </div>
+          </div>
+          <div class="arch-box arch-dim" style="min-width:130px;">
+            <div class="arch-box-title">◆ Dim SCD2</div>
+            <div class="arch-box-items">
+              dim_courses<br>
+              (historizada)
+            </div>
+          </div>
+          <div class="arch-box arch-dlt" style="min-width:130px;">
+            <div class="arch-box-title">⚡ DLT</div>
+            <div class="arch-box-items">
+              bronze_dlt<br>
+              silver_dlt<br>
+              gold_dlt
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── COMPARACIÓN ── -->
+  <section>
+    <div class="section-label">Nivel de ingeniería</div>
+    <h2>Qué lo diferencia del enfoque básico</h2>
+
+    <div class="card" style="margin-top:20px; overflow:hidden;">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Aspecto</th>
+            <th>Enfoque básico</th>
+            <th>Este pipeline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Carga de silver</td>
+            <td><span class="cross">✗</span> overwrite (no incremental)</td>
+            <td><span class="check">✓</span> MERGE idempotente</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Inferencia de schema</td>
+            <td><span class="cross">✗</span> inferSchema (frágil)</td>
+            <td><span class="check">✓</span> StructType explícito</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Dimensión cursos</td>
+            <td><span class="cross">✗</span> Estado actual (sin historia)</td>
+            <td><span class="check">✓</span> SCD Type 2 historizado</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Calidad de datos</td>
+            <td><span class="cross">✗</span> Ninguna validación</td>
+            <td><span class="check">✓</span> DQ gating + _dq_audit</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Schema drift</td>
+            <td><span class="cross">✗</span> Rompe la carga</td>
+            <td><span class="check">✓</span> rescuedDataColumn</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Tests</td>
+            <td><span class="cross">✗</span> Ninguno</td>
+            <td><span class="check">✓</span> 10 tests pytest, 100% pass</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; color:var(--text2); font-family:inherit;">Decisiones de diseño</td>
+            <td><span class="cross">✗</span> Implícitas</td>
+            <td><span class="check">✓</span> 5 ADRs documentados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── PATRONES CLAVE ── -->
+  <section>
+    <div class="section-label">Patrones de producción</div>
+    <h2>Tres patrones que marcan la diferencia</h2>
+
+    <div class="grid-2" style="margin-top:20px; gap:20px;">
+
+      <!-- MERGE -->
+      <div class="card card-accent">
+        <h3 style="color:var(--cyan);">MERGE INTO idempotente</h3>
+        <p>La clave de idempotencia real: re-ejecutar el pipeline N veces deja la tabla idéntica. El paso previo de deduplicación via window function garantiza que el batch entrante no tenga conflictos antes del MERGE.</p>
+        <div class="code-block" style="margin-top:14px;">
+          <span class="code-lang">pyspark</span>
+<span class="kw">dedup_window</span> = Window.<span class="fn">partitionBy</span>(<span class="str">"enrollment_id"</span>).<span class="fn">orderBy</span>(<span class="fn">desc</span>(<span class="str">"_ingested_at"</span>))
+
+<span class="fn">silver_tbl</span>.<span class="fn">alias</span>(<span class="str">"t"</span>)
+  .<span class="fn">merge</span>(incoming.<span class="fn">alias</span>(<span class="str">"s"</span>), <span class="str">"t.enrollment_id = s.enrollment_id"</span>)
+  .<span class="fn">whenMatchedUpdateAll</span>()
+  .<span class="fn">whenNotMatchedInsertAll</span>()
+  .<span class="fn">execute</span>()</div>
+      </div>
+
+      <!-- SCD2 -->
+      <div class="card card-accent">
+        <h3 style="color:#a78bfa;">SCD Type 2 con hash SHA-256</h3>
+        <p>Los cursos cambian: precio, categoría, instructor. SCD2 cierra la versión anterior e inserta la nueva — sin perder la historia. El hash determina si hubo cambio sin necesidad de comparar columna por columna.</p>
+        <div class="code-block" style="margin-top:14px;">
+          <span class="code-lang">pyspark</span>
+<span class="cm"># Hash de atributos rastreados — detecta cualquier cambio</span>
+.<span class="fn">withColumn</span>(<span class="str">"_scd_hash"</span>,
+  F.<span class="fn">sha2</span>(F.<span class="fn">concat_ws</span>(<span class="str">"||"</span>, *tracked), <span class="num">256</span>))
+
+<span class="cm"># Cerrar versión vieja si el hash cambió</span>
+<span class="kw">whenMatchedUpdate</span>(<span class="fn">set</span>={
+  <span class="str">"is_current"</span>: F.<span class="fn">lit</span>(<span class="kw">False</span>),
+  <span class="str">"valid_to"</span>: F.<span class="fn">expr</span>(<span class="str">"current_date() - INTERVAL 1 DAY"</span>)
+})</div>
+      </div>
+
+      <!-- DQ FRAMEWORK -->
+      <div class="card card-accent">
+        <h3 style="color:var(--gold);">DQ Framework con auditoría</h3>
+        <p>Cada validación registra su resultado en <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;">_dq_audit</code> con el run_id, la capa, el check y el pass_rate. Severidad <code style="color:#f87171;font-family:'JetBrains Mono',monospace;font-size:12px;">block</code> detiene el pipeline si la calidad cae bajo el 95%.</p>
+        <div class="code-block" style="margin-top:14px;">
+          <span class="code-lang">pyspark</span>
+<span class="fn">run_dq_check</span>(df, <span class="str">"silver"</span>, <span class="str">"silver_enrollments"</span>,
+  check=<span class="str">"enrollment_id_unico"</span>,
+  condition=F.<span class="fn">col</span>(<span class="str">"enrollment_id"</span>).<span class="fn">isNotNull</span>(),
+  severity=<span class="str">"block"</span>)  <span class="cm"># detiene si pass_rate &lt; 95%</span>
+
+<span class="cm"># Consulta de auditoría posterior</span>
+<span class="cm"># SELECT * FROM _dq_audit WHERE run_id = '...'</span></div>
+      </div>
+
+      <!-- RESCUED DATA -->
+      <div class="card card-accent">
+        <h3 style="color:var(--green);">rescuedDataColumn + schema explícito</h3>
+        <p>Doble defensa contra schema drift: el contrato explícito falla rápido ante tipos incompatibles; <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;">rescuedDataColumn</code> captura columnas inesperadas en <code style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;">_rescued_data</code> sin tumbar la carga. En DLT, <code style="color:#f43f5e;font-family:'JetBrains Mono',monospace;font-size:12px;">expect_or_fail</code> en esa columna detiene el pipeline.</p>
+        <div class="code-block" style="margin-top:14px;">
+          <span class="code-lang">pyspark</span>
+spark.<span class="fn">read</span>
+  .<span class="fn">schema</span>(SCHEMAS[<span class="str">"enrollments"</span>])   <span class="cm"># contrato</span>
+  .<span class="fn">option</span>(<span class="str">"rescuedDataColumn"</span>, <span class="str">"_rescued_data"</span>)
+  .<span class="fn">csv</span>(path)
+
+<span class="cm"># En DLT:</span>
+@dlt.<span class="fn">expect_or_fail</span>(<span class="str">"schema_intacto"</span>,
+  <span class="str">"_rescued_data IS NULL"</span>)</div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── SCD2 EJEMPLO ── -->
+  <section>
+    <div class="section-label">Historización</div>
+    <h2>dim_courses — SCD Type 2 en acción</h2>
+    <p>El curso CRS001 subió su precio de 9.99 a 9.99. La dimensión conserva ambas versiones. Un análisis de revenue de marzo lee la versión vigente en ese mes — no el precio actual.</p>
+
+    <div class="scd2-wrap" style="margin-top:20px;">
+      <div class="card" style="padding:0; overflow:hidden;">
+        <table class="scd2-table">
+          <thead>
+            <tr>
+              <th>course_id</th>
+              <th>course_name</th>
+              <th>list_price</th>
+              <th>valid_from</th>
+              <th>valid_to</th>
+              <th>is_current</th>
+              <th>_scd_hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="scd2-row-hist">
+              <td>CRS001</td>
+              <td>Delta Lake en producción</td>
+              <td>9.99</td>
+              <td>2025-01-01</td>
+              <td>2025-05-31</td>
+              <td><span class="tag-hist">false</span></td>
+              <td>a3f8...91c2</td>
+            </tr>
+            <tr class="scd2-row-current">
+              <td>CRS001</td>
+              <td>Delta Lake en producción</td>
+              <td>9.99</td>
+              <td>2025-06-01</td>
+              <td>null</td>
+              <td><span class="tag-current">true</span></td>
+              <td>b7d4...2e9a</td>
+            </tr>
+            <tr class="scd2-row-current">
+              <td>CRS002</td>
+              <td>MLOps con MLflow</td>
+              <td>9.99</td>
+              <td>2025-01-01</td>
+              <td>null</td>
+              <td><span class="tag-current">true</span></td>
+              <td>c2a1...88f3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <p>El hash SHA-256 se calcula sobre los atributos rastreados concatenados con <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan);">||</code> como separador. Si el hash de la fila entrante difiere del hash <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan);">is_current=true</code>, hubo un cambio — sin necesidad de comparar columna por columna.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── DATA QUALITY ── -->
+  <section>
+    <div class="section-label">Calidad de datos</div>
+    <h2>DQ Gating — reglas implementadas</h2>
+    <p>Cada check registra su resultado en <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:13px;">_dq_audit</code>. La severidad determina la consecuencia.</p>
+
+    <div class="card" style="margin-top:20px; padding:0; overflow:hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Check</th>
+            <th>Capa</th>
+            <th>Severidad</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody class="dq-row">
+          <tr>
+            <td>enrollment_id_unico</td>
+            <td style="color:var(--text2); font-family:inherit;">Silver</td>
+            <td><span class="sev-block">block</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Detiene el pipeline si pass_rate &lt; 95%</td>
+          </tr>
+          <tr>
+            <td>pago_no_negativo</td>
+            <td style="color:var(--text2); font-family:inherit;">Silver</td>
+            <td><span class="sev-warn">warn</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Registra · las filas negativas se filtran</td>
+          </tr>
+          <tr>
+            <td>completion_pct_en_rango</td>
+            <td style="color:var(--text2); font-family:inherit;">Silver</td>
+            <td><span class="sev-block">block</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Detiene si completion_pct ∉ [0, 100]</td>
+          </tr>
+          <tr>
+            <td>pago_valido (DLT)</td>
+            <td style="color:var(--text2); font-family:inherit;">DLT Silver</td>
+            <td><span class="sev-drop">drop</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Descarta filas con payment_amount &lt; 0</td>
+          </tr>
+          <tr>
+            <td>course_id_presente (DLT)</td>
+            <td style="color:var(--text2); font-family:inherit;">DLT Silver</td>
+            <td><span class="sev-warn">warn</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Conserva la fila · cuenta la violación</td>
+          </tr>
+          <tr>
+            <td>schema_intacto (DLT)</td>
+            <td style="color:var(--text2); font-family:inherit;">DLT Silver</td>
+            <td><span class="sev-fail">fail</span></td>
+            <td style="color:var(--text2); font-family:inherit;">Detiene el pipeline si hay drift de schema</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px;">
+      <h3 style="margin-bottom:10px;">Imperfecciones del dataset (inyectadas con seed=42)</h3>
+      <div class="grid-4">
+        <div class="metric">
+          <div class="metric-value" style="font-size:22px; color:var(--gold);">~8%</div>
+          <div class="metric-label">payment_amount nulo → 0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" style="font-size:22px; color:#f87171;">~3%</div>
+          <div class="metric-label">payment negativo → descartado</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" style="font-size:22px; color:var(--gold);">~4%</div>
+          <div class="metric-label">course_id nulo → warn</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" style="font-size:22px; color:var(--gold);">~2%</div>
+          <div class="metric-label">enrollment duplicado → dedup</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── TESTS ── -->
+  <section>
+    <div class="section-label">Validación</div>
+    <h2>Suite pytest — 10/10 PASSED</h2>
+    <p>Tests de lógica de transformación ejecutables fuera de Databricks con Spark local. Un pipeline que no tiene tests no puede garantizar que una refactorización no lo rompe.</p>
+
+    <div style="margin-top:20px;">
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_deduplicacion</span><span class="test-time">window function elimina ENR001 duplicado</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_nulos_a_cero</span><span class="test-time">coalesce → 0.0, sin nulls residuales</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_descarta_negativos</span><span class="test-time">ENR003 no pasa el filtro DQ</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_is_paid_derivado</span><span class="test-time">columna derivada refleja payment_amount &gt; 0</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_filtro_total_lessons_cero</span><span class="test-time">CRS2 (0 lecciones) no llega a silver_progress</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_completion_pct_en_rango</span><span class="test-time">todo resultado ∈ [0.0, 100.0]</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_scd2_hash_determinista</span><span class="test-time">mismo dato → mismo SHA-256</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_scd2_detecta_cambios</span><span class="test-time">precio 9.99→9.99 cambia el hash</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_upsert_idempotente</span><span class="test-time">3 ejecuciones del MERGE → mismo resultado</span></div>
+      <div class="test-result"><span class="test-pass">✓</span><span class="test-name">test_revenue_excluye_refunds</span><span class="test-time">refunded no suma al revenue total</span></div>
+      <div class="test-summary">
+        ══ 10 passed · 0 failed · Spark local · seed=42 ══
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── ADRs ── -->
+  <section>
+    <div class="section-label">Decisiones de arquitectura</div>
+    <h2>Architecture Decision Records</h2>
+    <p>Cada decisión de diseño documentada con su contexto, trade-offs y alternativas descartadas. Esto es lo que diferencia un pipeline de producción de un script que corre una vez.</p>
+
+    <div style="margin-top:24px;">
+
+      <div class="adr-item open">
+        <div class="adr-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="adr-num">ADR-01</span>
+          <span class="adr-title">MERGE INTO en silver en lugar de overwrite</span>
+          <span class="adr-chevron">▼</span>
+        </div>
+        <div class="adr-body">
+          <span class="decision-badge accepted">✓ Accepted</span>
+          <p><strong style="color:var(--text);">Decisión:</strong> <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">silver_enrollments</code> se actualiza con <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">MERGE INTO</code>, no con <code style="font-family:'JetBrains Mono',monospace; color:#f87171; font-size:12px;">mode("overwrite")</code>.</p>
+          <p><strong style="color:var(--text);">Problema:</strong> El overwrite reconstruye la tabla entera en cada ejecución — no es incremental, no tolera concurrencia, y destruye el historial de Delta de forma poco controlada. Con un CSV de 5k filas no se nota; con cargas diarias acumuladas durante un año, el impacto es crítico.</p>
+          <p><strong style="color:var(--text);">Trade-off:</strong> MERGE exige una clave de negocio estable (<code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">enrollment_id</code>) y un paso previo de deduplicación del batch. Es más código. A cambio se gana idempotencia real — re-ejecutar N veces = resultado idéntico. Propiedad verificada en <code style="font-family:'JetBrains Mono',monospace; color:var(--green); font-size:12px;">test_upsert_idempotente</code>.</p>
+          <p><strong style="color:var(--text);">Nota:</strong> Bronze sí usa overwrite — es correcto, porque bronze es un mirror del raw y reprocesarlo entero es la semántica esperada.</p>
+        </div>
+      </div>
+
+      <div class="adr-item">
+        <div class="adr-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="adr-num">ADR-02</span>
+          <span class="adr-title">Schema explícito como data contract (no inferSchema)</span>
+          <span class="adr-chevron">▼</span>
+        </div>
+        <div class="adr-body">
+          <span class="decision-badge accepted">✓ Accepted</span>
+          <p><strong style="color:var(--text);">Problema:</strong> <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">inferSchema</code> lee los datos dos veces y el tipo inferido depende de los datos: un CSV donde <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">payment_amount</code> trae solo enteros infiere <code style="font-family:'JetBrains Mono',monospace; font-size:12px;">int</code>; el siguiente con un decimal infiere <code style="font-family:'JetBrains Mono',monospace; font-size:12px;">double</code>. El pipeline rompe sin que nadie cambie una línea de código.</p>
+          <p><strong style="color:var(--text);">Decisión:</strong> <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">StructType</code> explícito para cada entidad. El schema es un <strong style="color:var(--text);">contrato</strong>: si la fuente lo viola, el pipeline falla rápido y de forma visible en vez de producir datos incorrectos en silencio. <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">rescuedDataColumn</code> captura columnas inesperadas sin tumbar la carga.</p>
+        </div>
+      </div>
+
+      <div class="adr-item">
+        <div class="adr-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="adr-num">ADR-03</span>
+          <span class="adr-title">SCD Type 2 para la dimensión de cursos</span>
+          <span class="adr-chevron">▼</span>
+        </div>
+        <div class="adr-body">
+          <span class="decision-badge accepted">✓ Accepted</span>
+          <p><strong style="color:var(--text);">Problema:</strong> Los cursos cambian: sube el precio, se recategoriza, cambia el instructor. Una tabla de estado actual no puede responder "¿cuánto costaba este curso cuando el usuario X se inscribió en marzo?".</p>
+          <p><strong style="color:var(--text);">Alternativa descartada — SCD Type 1 (overwrite):</strong> más simple, pero pierde la historia irrecuperablemente. Delta time travel <em>parece</em> una alternativa, pero no lo es: time travel versiona la tabla entera, no la entidad de negocio, y VACUUM lo borra eventualmente.</p>
+          <p><strong style="color:var(--text);">Alternativa descartada — Delta time travel:</strong> versiona toda la tabla, no entidades individuales. No es recuperable indefinidamente (VACUUM). No es un sustituto de SCD2.</p>
+          <p><strong style="color:var(--text);">Trade-off:</strong> SCD2 multiplica filas (un curso con 5 cambios = 5 filas) y exige que gold filtre <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">is_current = true</code>. A cambio, la historia es permanente y recuperable por diseño.</p>
+        </div>
+      </div>
+
+      <div class="adr-item">
+        <div class="adr-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="adr-num">ADR-04</span>
+          <span class="adr-title">DQ gating con tabla de auditoría centralizada</span>
+          <span class="adr-chevron">▼</span>
+        </div>
+        <div class="adr-body">
+          <span class="decision-badge accepted">✓ Accepted</span>
+          <p><strong style="color:var(--text);">Problema:</strong> Validar calidad con <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">assert</code> dispersos en el código tiene dos fallas: los resultados no quedan en ningún lado, y no hay un criterio uniforme de cuándo detener el pipeline.</p>
+          <p><strong style="color:var(--text);">Decisión:</strong> Función <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">run_dq_check</code> que recibe una condición booleana y una severidad (<code style="font-family:'JetBrains Mono',monospace; font-size:12px;">warn</code> | <code style="font-family:'JetBrains Mono',monospace; font-size:12px;">block</code>). Registra run_id, capa, check, pass_rate en <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">_dq_audit</code>. La calidad del pipeline pasa de ser invisible a ser una consulta SQL.</p>
+        </div>
+      </div>
+
+      <div class="adr-item">
+        <div class="adr-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="adr-num">ADR-05</span>
+          <span class="adr-title">ZORDER hoy · Liquid Clustering como evolución</span>
+          <span class="adr-chevron">▼</span>
+        </div>
+        <div class="adr-body">
+          <span class="decision-badge deferred">→ Deferred to Liquid Clustering</span>
+          <p><strong style="color:var(--text);">Estrategia actual:</strong> <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">OPTIMIZE ... ZORDER BY (enrolled_at)</code> para <code style="font-family:'JetBrains Mono',monospace; font-size:12px;">silver_enrollments</code> (queries temporales: cohortes, retención). <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">ZORDER BY (course_id)</code> para gold (queries por curso).</p>
+          <p><strong style="color:var(--text);">Alternativa descartada — particionamiento físico:</strong> Particionar por fecha produciría cientos de particiones diminutas con este volumen. El particionamiento solo conviene con tablas grandes (100+ GB) y columnas de baja cardinalidad.</p>
+          <p><strong style="color:var(--text);">Evolución:</strong> Liquid Clustering (<code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">CLUSTER BY</code>) reemplaza a ZORDER — se adapta incrementalmente, no exige orden de columnas, permite cambiar claves sin reescribir la tabla. Es el camino natural cuando esté disponible en el tier.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── FILE TREE ── -->
+  <section>
+    <div class="section-label">Repositorio</div>
+    <h2>Estructura del proyecto</h2>
+
+    <div class="file-tree" style="margin-top:20px;">
+      <div><span class="ft-dir">edustream-pipeline/</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-file">├── README.md</span><span class="ft-note">→ setup, instrucciones, reflexiones</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-dir">├── docs/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── DESIGN.md</span><span class="ft-note">→ 5 ADRs + modelo de datos + limitaciones</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-dir">├── notebooks/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">├── S06_EduStream_Pipeline.py</span><span class="ft-note">→ pipeline batch (pasos 1-4)</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── S06_EduStream_DLT.py</span><span class="ft-note">→ pipeline DLT streaming declarativo</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-dir">├── data/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── generate_edustream_data.py</span><span class="ft-note">→ datos sintéticos seed=42, 5K+ filas</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-dir">├── tests/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">└── test_pipeline_logic.py</span><span class="ft-note">→ 10 tests pytest, 100% PASSED</span></div>
+      <div>&nbsp;&nbsp;<span class="ft-dir">└── screenshots/</span><span class="ft-note">→ capturas de Databricks (ver README)</span></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── REFLEXIONES ── -->
+  <section>
+    <div class="section-label">Entregable bootcamp</div>
+    <h2>Las 4 reflexiones del entregable</h2>
+
+    <div class="grid-2" style="margin-top:20px; gap:16px;">
+      <div class="card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cyan); margin-bottom:10px; letter-spacing:0.1em;">REFLEXIÓN 01</div>
+        <h3>Managed vs External Table</h3>
+        <p>Managed: Unity Catalog controla metadatos y archivos físicos — <code style="font-family:'JetBrains Mono',monospace; color:#f87171; font-size:12px;">DROP TABLE</code> borra ambos. External: tú defines <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">LOCATION</code> — DROP solo borra los metadatos, los datos persisten.</p>
+        <p>Para EduStream: <strong style="color:var(--text);">managed tables</strong>. Los datos son exclusivos de la plataforma, Unity Catalog gestiona governance y lineage. External solo si un sistema externo (Redshift, otro data lake) consumiera los Parquet directamente.</p>
+      </div>
+      <div class="card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cyan); margin-bottom:10px; letter-spacing:0.1em;">REFLEXIÓN 02</div>
+        <h3>Versiones acumuladas y VACUUM</h3>
+        <p>Cada write retiene archivos Parquet nuevos indefinidamente. Small files problem: Spark abre un file handle por archivo — con cientos de archivos el planning overhead supera la ejecución. Storage cost escala linealmente.</p>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">VACUUM</code> elimina archivos no referenciados fuera del retention window (7 días default). <code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">OPTIMIZE</code> compacta — complementario, no sustituto.</p>
+      </div>
+      <div class="card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cyan); margin-bottom:10px; letter-spacing:0.1em;">REFLEXIÓN 03</div>
+        <h3>expect / expect_or_drop / expect_or_fail</h3>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:#fb923c; font-size:12px;">expect_or_drop</code> para pagos negativos: dato corrupto sin interpretación válida → se descarta silenciosamente pero queda en las métricas de DQ.</p>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:12px;">expect</code> para course_id nulo: puede ser estado transitorio → se conserva marcado.</p>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:#f43f5e; font-size:12px;">expect_or_fail</code> para schema drift (<code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">_rescued_data IS NULL</code>): si la fuente cambió su estructura, fail-fast evita producir métricas sobre datos mal parseados.</p>
+      </div>
+      <div class="card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cyan); margin-bottom:10px; letter-spacing:0.1em;">REFLEXIÓN 04</div>
+        <h3>Estrategia de ZORDER</h3>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">enrolled_at</code> para silver_enrollments: el 90% de las queries son temporales (cohortes, retención por semana). ZORDER co-localiza archivos → data skipping reduce el scan.</p>
+        <p><code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">course_id</code> para gold: queries filtran por curso. No particionamiento físico: con este volumen generaría cientos de particiones diminutas. Evolución natural: Liquid Clustering (<code style="font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:12px;">CLUSTER BY</code>).</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── STACK ── -->
+  <section>
+    <div class="section-label">Stack tecnológico</div>
+    <h2>Tecnologías</h2>
+
+    <div class="card" style="margin-top:20px; padding:0; overflow:hidden;">
+      <table>
+        <thead>
+          <tr><th>Componente</th><th>Tecnología</th><th>Rol en el pipeline</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Plataforma</td><td style="color:var(--text2);font-family:inherit;">Databricks Free Edition · Serverless</td><td style="color:var(--text2);font-family:inherit;">Entorno de ejecución</td></tr>
+          <tr><td>Governance</td><td style="color:var(--text2);font-family:inherit;">Unity Catalog</td><td style="color:var(--text2);font-family:inherit;">Metastore, lineage, tablas managed</td></tr>
+          <tr><td>Almacenamiento</td><td style="color:var(--text2);font-family:inherit;">Delta Lake</td><td style="color:var(--text2);font-family:inherit;">ACID, time travel, MERGE, VACUUM</td></tr>
+          <tr><td>Ingestión</td><td style="color:var(--text2);font-family:inherit;">Auto Loader (cloudFiles)</td><td style="color:var(--text2);font-family:inherit;">Streaming incremental desde Volume</td></tr>
+          <tr><td>Orquestación declarativa</td><td style="color:var(--text2);font-family:inherit;">Delta Live Tables</td><td style="color:var(--text2);font-family:inherit;">DAG, streaming, DQ expectations</td></tr>
+          <tr><td>Lenguaje</td><td style="color:var(--text2);font-family:inherit;">PySpark · SQL</td><td style="color:var(--text2);font-family:inherit;">Transformaciones y DDL</td></tr>
+          <tr><td>Testing</td><td style="color:var(--text2);font-family:inherit;">pytest · Spark local</td><td style="color:var(--text2);font-family:inherit;">10 tests de lógica, sin Databricks</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <img src="data:image/png;base64,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" alt="MCOY">
+  <p style="color:var(--text2); font-size:13px; margin-bottom:4px;">
+    <strong style="color:#fff;">MCOY AI + Data Strategy</strong>
+  </p>
+  <p>EduStream Pipeline Enterprise · Sesión 06 · AI Data Engineer Bootcamp · DataHackers Academy</p>
+  <p style="margin-top:8px;">Delta Lake · Unity Catalog · Delta Live Tables · SCD2 · DQ Gating</p>
+</footer>
+
+<script>
+  // ADR accordion — ya implementado con onclick inline
+  // Abrir el primero por defecto está hecho con class="adr-item open"
+</script>
+</body>
+</html>

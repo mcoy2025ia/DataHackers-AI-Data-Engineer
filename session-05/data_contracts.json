@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EduStream Data Contracts v1.0",
+  "description": "Contratos de datos para las 4 fuentes CSV del pipeline EduStream. Versionado en Git — cambios requieren PR aprobado por el equipo de datos.",
+  "version": "1.0.0",
+  "owner": "mcoy@mcoyai.com",
+  "updated_at": "2026-05-20",
+
+  "contracts": {
+    "enrollments": {
+      "source": "s3://edustream-landing/enrollments/*.csv",
+      "bronze_table": "edustream.bronze.enrollments",
+      "sla_freshness_hours": 24,
+      "fields": {
+        "enrollment_id": {
+          "type": "string", "nullable": false, "unique": true,
+          "description": "PK natural de la inscripción"
+        },
+        "user_id": {
+          "type": "string", "nullable": false,
+          "description": "FK al usuario"
+        },
+        "course_id": {
+          "type": "string", "nullable": false,
+          "description": "FK al curso"
+        },
+        "enrolled_at": {
+          "type": "timestamp", "nullable": false,
+          "format": "ISO 8601",
+          "description": "Timestamp de inscripción"
+        },
+        "payment_amount": {
+          "type": "float", "nullable": true,
+          "minimum": 0,
+          "description": "Nulo = curso gratuito. No imputar."
+        },
+        "currency": {
+          "type": "string", "nullable": true,
+          "enum": ["USD", "MXN", "COP", "PEN"],
+          "description": "Moneda del pago. Normalizar en Silver."
+        }
+      },
+      "great_expectations_suite": "edustream.enrollments.bronze_suite",
+      "expectations": [
+        "expect_column_values_to_not_be_null(column='enrollment_id')",
+        "expect_column_values_to_be_unique(column='enrollment_id')",
+        "expect_column_values_to_not_be_null(column='user_id')",
+        "expect_column_values_to_not_be_null(column='course_id')",
+        "expect_column_values_to_be_of_type(column='payment_amount', type_='float')",
+        "expect_column_values_to_be_in_set(column='currency', value_set=['USD','MXN','COP','PEN'])",
+        "expect_column_min_to_be_between(column='payment_amount', min_value=0)"
+      ]
+    },
+
+    "courses": {
+      "source": "s3://edustream-landing/courses/*.csv",
+      "bronze_table": "edustream.bronze.courses",
+      "silver_table": "edustream.silver.courses_scd2",
+      "sla_freshness_hours": 168,
+      "scd2": true,
+      "scd2_business_key": "course_id",
+      "scd2_tracked_fields": ["price_usd", "category", "title"],
+      "fields": {
+        "course_id":     {"type": "string",  "nullable": false, "unique": true},
+        "title":         {"type": "string",  "nullable": false},
+        "instructor_id": {"type": "string",  "nullable": false},
+        "category":      {"type": "string",  "nullable": true,
+                          "description": "Nulo o vacío → 'sin_categoria' en Silver"},
+        "price_usd":     {"type": "float",   "nullable": false, "minimum": 0},
+        "language":      {"type": "string",  "nullable": true}
+      },
+      "great_expectations_suite": "edustream.courses.bronze_suite",
+      "expectations": [
+        "expect_column_values_to_not_be_null(column='course_id')",
+        "expect_column_values_to_be_unique(column='course_id')",
+        "expect_column_min_to_be_between(column='price_usd', min_value=0)"
+      ]
+    },
+
+    "progress": {
+      "source": "s3://edustream-landing/progress/*.csv",
+      "bronze_table": "edustream.bronze.progress",
+      "sla_freshness_hours": 1,
+      "streaming_capable": true,
+      "fields": {
+        "user_id":            {"type": "string",  "nullable": false},
+        "course_id":          {"type": "string",  "nullable": false},
+        "lessons_completed":  {"type": "integer", "nullable": false, "minimum": 0},
+        "total_lessons":      {"type": "integer", "nullable": false, "minimum": 0,
+                               "description": "0 = dato corrupto → cuarentena en Silver"},
+        "last_activity_at":   {"type": "timestamp", "nullable": true}
+      },
+      "great_expectations_suite": "edustream.progress.bronze_suite",
+      "expectations": [
+        "expect_column_values_to_not_be_null(column='user_id')",
+        "expect_column_values_to_not_be_null(column='course_id')",
+        "expect_column_values_to_not_be_null(column='total_lessons')",
+        "expect_column_values_to_be_between(column='lessons_completed', min_value=0)",
+        "expect_column_pair_values_A_to_be_greater_than_B(column_A='total_lessons', column_B='lessons_completed', or_equal=True)"
+      ],
+      "silver_rules": {
+        "corrupt_filter": "total_lessons > 0",
+        "computed_fields": {
+          "completion_pct":  "ROUND(lessons_completed / total_lessons * 100, 2)",
+          "completion_flag": "lessons_completed = total_lessons"
+        }
+      }
+    },
+
+    "instructors": {
+      "source": "s3://edustream-landing/instructors/*.csv",
+      "bronze_table": "edustream.bronze.instructors",
+      "sla_freshness_hours": 168,
+      "fields": {
+        "instructor_id": {"type": "string", "nullable": false, "unique": true},
+        "name":          {"type": "string", "nullable": false},
+        "country":       {"type": "string", "nullable": true,
+                          "description": "NULL aceptado — Silver lo mapea a 'desconocido'"},
+        "joined_at":     {"type": "date",   "nullable": true}
+      },
+      "great_expectations_suite": "edustream.instructors.bronze_suite",
+      "expectations": [
+        "expect_column_values_to_not_be_null(column='instructor_id')",
+        "expect_column_values_to_be_unique(column='instructor_id')",
+        "expect_column_values_to_not_be_null(column='name')"
+      ]
+    }
+  },
+
+  "slo_definitions": {
+    "freshness_minutes":    {"target": 60,   "unit": "min",   "direction": "lower_is_better"},
+    "dq_score":             {"target": 0.95, "unit": "ratio", "direction": "higher_is_better"},
+    "cost_per_run_usd":     {"target": 0.50, "unit": "USD",   "direction": "lower_is_better"},
+    "pipeline_latency_min": {"target": 30,   "unit": "min",   "direction": "lower_is_better"}
+  },
+
+  "psi_thresholds": {
+    "stable":      {"max": 0.10, "action": "log_only"},
+    "minor_shift": {"max": 0.20, "action": "slack_warning"},
+    "major_drift": {"min": 0.20, "action": "slack_critical + open_dbt_pr"}
+  }
+}

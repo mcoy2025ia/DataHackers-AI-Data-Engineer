@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>S05 — Arquitectura Medallion EduStream · MCOY</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black:    #080C12;
+  --dark:     #0D1320;
+  --card:     #111827;
+  --card2:    #161F30;
+  --border:   rgba(43,127,255,0.18);
+  --border2:  rgba(43,127,255,0.08);
+  --blue:     #2B7FFF;
+  --blue-lt:  #5599FF;
+  --cyan:     #00C8FF;
+  --silver:   #A8B8D0;
+  --white:    #EDF2FA;
+  --muted:    #6B7E99;
+  --bronze:   #C87941;
+  --bronze-bg:#1A120A;
+  --silver-c: #8BAAC8;
+  --silver-bg:#0A1420;
+  --gold:     #D4A017;
+  --gold-bg:  #1A1500;
+  --r:        10px;
+  --r-lg:     16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ── GRID BACKGROUND ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(43,127,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,127,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LAYOUT ── */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 56px;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-wrap img { height: 52px; width: auto; }
+
+.logo-text { font-family: 'Syne', sans-serif; }
+.logo-text .brand { font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: var(--white); }
+.logo-text .brand span { color: var(--blue); }
+.logo-text .sub { font-size: 11px; font-weight: 400; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; }
+
+.header-meta { text-align: right; }
+.header-meta .course { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.header-meta .session { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--blue); }
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 0 0 64px;
+  position: relative;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: rgba(43,127,255,0.08);
+  border: 1px solid var(--border);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+}
+
+.hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.hero h1 em { font-style: normal; color: var(--blue); }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--silver);
+  max-width: 620px;
+  margin: 0 auto 40px;
+  font-weight: 300;
+}
+
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--silver);
+  background: rgba(255,255,255,0.02);
+}
+
+/* ── SECTION HEADERS ── */
+.part-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 64px 0 32px;
+}
+
+.part-divider .part-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: rgba(43,127,255,0.10);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.part-divider .part-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.part-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* ── SCENARIO BOX ── */
+.scenario {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.scenario::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--blue), var(--cyan));
+  border-radius: 3px 0 0 3px;
+}
+
+.scenario-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+
+.scenario p { color: var(--silver); font-size: 14px; }
+
+/* ── ARCHITECTURE LAYERS ── */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 28px 0;
+}
+
+.layer-card {
+  border-radius: var(--r);
+  padding: 20px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.layer-card.bronze { background: var(--bronze-bg); border-color: rgba(200,121,65,0.3); }
+.layer-card.silver-l { background: var(--silver-bg); border-color: rgba(139,170,200,0.3); }
+.layer-card.gold { background: var(--gold-bg); border-color: rgba(212,160,23,0.3); }
+
+.layer-badge {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.bronze .layer-badge { color: var(--bronze); background: rgba(200,121,65,0.12); }
+.silver-l .layer-badge { color: var(--silver-c); background: rgba(139,170,200,0.12); }
+.gold .layer-badge { color: var(--gold); background: rgba(212,160,23,0.12); }
+
+.layer-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--white);
+}
+
+.layer-card ul { list-style: none; }
+.layer-card ul li {
+  font-family: 'DM Mono', monospace;
+  font-size: 11.5px;
+  color: var(--silver);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.layer-card ul li::before { content: '→'; opacity: 0.4; font-size: 10px; }
+
+/* ── Q&A BLOCKS ── */
+.qa-section { display: flex; flex-direction: column; gap: 20px; }
+
+.qa-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.qa-card:hover { border-color: var(--border); }
+
+.qa-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qa-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  background: rgba(43,127,255,0.1);
+  border: 1px solid var(--border);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.qa-q-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.qa-chevron {
+  color: var(--muted);
+  font-size: 18px;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.qa-card.open .qa-chevron { transform: rotate(180deg); }
+.qa-card.open { border-color: var(--border); }
+
+.qa-answer {
+  display: none;
+  padding: 0 24px 24px 68px;
+  border-top: 1px solid var(--border2);
+  animation: fadeIn 0.25s ease;
+}
+
+.qa-card.open .qa-answer { display: block; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+.qa-answer p { color: var(--silver); font-size: 14px; margin-bottom: 12px; line-height: 1.8; }
+.qa-answer p:last-child { margin-bottom: 0; }
+.qa-answer strong { color: var(--white); font-weight: 500; }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: #080C12;
+  border: 1px solid rgba(43,127,255,0.15);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #A8C8FF;
+  white-space: pre;
+}
+
+.code-block .kw  { color: #7DD3FC; }
+.code-block .fn  { color: #86EFAC; }
+.code-block .str { color: #FCD34D; }
+.code-block .cm  { color: #4B6080; font-style: italic; }
+.code-block .num { color: #FB923C; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 13.5px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.callout.info { background: rgba(43,127,255,0.07); border-left: 3px solid var(--blue); color: var(--silver); }
+.callout.warn { background: rgba(212,160,23,0.07); border-left: 3px solid var(--gold); color: var(--silver); }
+.callout.ok   { background: rgba(52,211,153,0.07); border-left: 3px solid #34D399; color: var(--silver); }
+.callout-icon { flex-shrink: 0; font-size: 16px; }
+
+/* ── OPT TABLE ── */
+.opt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 16px 0;
+}
+
+.opt-table th {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.opt-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--silver);
+  vertical-align: top;
+}
+
+.opt-table td:first-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+}
+
+.opt-table tr:hover td { background: rgba(43,127,255,0.03); }
+
+/* ── AGENT CARDS ── */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.agent-card {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.agent-card:hover { border-color: var(--border); transform: translateY(-2px); }
+
+.agent-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.agent-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex-shrink: 0;
+}
+
+.agent-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.agent-model {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.agent-desc { font-size: 12.5px; color: var(--silver); line-height: 1.6; }
+
+/* ── DIAGRAM SVG ── */
+.diagram-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+
+.diagram-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ── CHECKLIST ── */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--silver);
+}
+
+.check-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(52,211,153,0.12);
+  border: 1px solid rgba(52,211,153,0.3);
+  color: #34D399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  margin-top: 80px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.footer-brand span { color: var(--blue); }
+
+.footer-meta { font-size: 12px; color: var(--muted); }
+
+/* ── PRINT ── */
+@media print {
+  body { background: #fff; color: #111; }
+  body::before, body::after { display: none; }
+  .qa-answer { display: block !important; }
+  .qa-chevron { display: none; }
+  .qa-card { border: 1px solid #ddd; page-break-inside: avoid; }
+  .site-header { border-color: #ddd; }
+  .part-divider::after { background: #ddd; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+<header class="site-header">
+  <div class="logo-wrap">
+    <img src="logomcoy2.png" alt="MCOY AI + Data Strategy"/>
+    <div class="logo-text">
+      <div class="brand">MCO<span>Y</span></div>
+      <div class="sub">AI + Data Strategy</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="course">DataHackers Academy · AI Data Engineer Bootcamp</div>
+    <div class="session">Sesión 05 — PySpark y Databricks</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-eyebrow">Entregable resuelto</div>
+  <h1>Arquitectura <em>Medallion</em><br/>Agentic Data Platform</h1>
+  <p class="hero-sub">
+    Olist (caso de referencia) + EduStream (caso propio) — diseño completo
+    con LangGraph, MCP tools, contratos de datos y observabilidad.
+  </p>
+  <div class="hero-chips">
+    <span class="chip">PySpark 3.5</span>
+    <span class="chip">Databricks + Delta Lake</span>
+    <span class="chip">LangGraph 0.2</span>
+    <span class="chip">Great Expectations</span>
+    <span class="chip">dbt-databricks</span>
+    <span class="chip">MLflow</span>
+    <span class="chip">Logfire + OTel</span>
+    <span class="chip">MCP Tools</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ PARTE 1 ═══════════════════════════════════ -->
+<div class="part-divider">
+  <span class="part-num">Parte 1</span>
+  <span class="part-title">Caso de Referencia — E-commerce LATAM (Olist)</span>
+</div>
+
+<div class="scenario">
+  <div class="scenario-label">Escenario</div>
+  <p>Olist es un marketplace brasileño que conecta vendedores con las principales tiendas de e-commerce de LATAM. Tienen múltiples fuentes de datos batch que llegan diariamente (orders, items, products, sellers) y necesitan construir un pipeline que ingeste archivos CSV y produzca métricas de negocio confiables para el equipo comercial.</p>
+</div>
+
+<!-- Arquitectura resumida Olist -->
+<div class="arch-grid">
+  <div class="layer-card bronze">
+    <span class="layer-badge">Bronze</span>
+    <h4>Datos crudos sin tocar</h4>
+    <ul>
+      <li>bronze_orders</li>
+      <li>bronze_items</li>
+      <li>bronze_products</li>
+      <li>bronze_sellers</li>
+    </ul>
+  </div>
+  <div class="layer-card silver-l">
+    <span class="layer-badge">Silver</span>
+    <h4>Limpieza + joins + estandarización</h4>
+    <ul>
+      <li>silver_orders (nulos, BRL→USD)</li>
+      <li>silver_order_items (join)</li>
+      <li>silver_products</li>
+    </ul>
+  </div>
+  <div class="layer-card gold">
+    <span class="layer-badge">Gold</span>
+    <h4>Métricas de negocio</h4>
+    <ul>
+      <li>gold_revenue_by_category</li>
+      <li>gold_seller_performance</li>
+      <li>gold_weekly_trend</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Preguntas Parte 1 -->
+<div class="qa-section">
+
+  <div class="qa-card open">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">1</div>
+      <div class="qa-q-text">¿Por qué Bronze no limpia ni transforma los datos crudos? ¿Qué pasaría si limpiamos en Bronze?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p>Bronze cumple una única responsabilidad: <strong>preservar los datos exactamente como llegaron desde la fuente</strong>. Esto no es un descuido de diseño — es una decisión arquitectural deliberada con tres consecuencias críticas.</p>
+      <p><strong>Auditoría y linaje completo.</strong> Si Silver o Gold producen métricas incorrectas, el equipo de datos puede regresar a Bronze y reconstruir desde el origen sin depender de los sistemas fuente, que en Olist son terceros fuera del control del equipo. Bronze es la única verdad inmutable del sistema.</p>
+      <p><strong>Reprocesamiento sin pérdidas.</strong> Si mañana el negocio decide que el criterio para "orden completada" era incorrecto, se puede re-procesar Silver y Gold desde Bronze con el nuevo criterio. Si Bronze ya hubiese filtrado o modificado datos, esa capacidad se pierde permanentemente.</p>
+      <p><strong>Detección de errores aguas arriba.</strong> Si Bronze limpia y la fuente empieza a mandar datos malformados, el problema llega silenciosamente a Gold. Con Bronze intacto, el Quality Agent puede detectar drift de schema o valores inesperados antes de contaminar las métricas comerciales.</p>
+      <div class="callout warn">
+        <span class="callout-icon">⚠</span>
+        Si limpiamos en Bronze y eliminamos una fila que parecía inválida, pero la regla de validación estaba equivocada, ese dato se pierde para siempre. <strong>En un medallion bien construido, Bronze nunca borra.</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">2</div>
+      <div class="qa-q-text">En Silver se normaliza la moneda de BRL a USD. ¿Podría hacerse en Bronze o Gold? ¿Por qué se hace en Silver?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p><strong>En Bronze no:</strong> Bronze es una copia fiel de la fuente. Si Olist manda el precio en BRL, Bronze lo guarda en BRL. Convertir aquí implicaría transformar el dato original, violando el principio de inmutabilidad de la capa. Además, la tasa de cambio puede actualizarse y necesitaríamos re-procesar toda la capa, lo cual no tiene sentido.</p>
+      <p><strong>En Gold tampoco:</strong> Gold calcula métricas de negocio (revenue por categoría, ticket promedio). Si Gold tuviera que hacer la conversión además de los agregados, mezclaría dos responsabilidades. El join entre orders e items ya es costoso; agregar la lógica de divisas dentro de cada query de Gold genera deuda técnica y errores difíciles de detectar. Además, si hay múltiples tablas Gold que consumen el dato monetario, la conversión tendría que repetirse en cada una.</p>
+      <p><strong>Silver es el lugar correcto</strong> porque es la capa de conformación: aquí los datos de distintas fuentes se llevan a un modelo de datos consistente y estandarizado. La conversión de moneda es exactamente eso: estandarización. Una sola vez, en un solo lugar, con una sola regla. Todos los consumidores posteriores (Gold, ML, BI) reciben USD sin preocuparse de la lógica de conversión.</p>
+      <div class="callout ok">
+        <span class="callout-icon">✓</span>
+        Regla de oro: <strong>Silver limpia una vez</strong> para que Gold nunca tenga que preocuparse por la calidad o el formato del dato.
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">3</div>
+      <div class="qa-q-text">El equipo comercial solo consulta Gold. ¿Por qué nunca debería consultar Silver o Bronze directamente?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p>Hay tres razones de peso, y la más importante no es técnica sino organizacional.</p>
+      <p><strong>Razón 1 — Calidad no garantizada.</strong> Bronze tiene nulos, duplicados, monedas mixtas y filas malformadas. Si el equipo comercial consulta Bronze directamente, puede tomar decisiones de negocio basadas en datos que el pipeline aún no ha validado. Silver está limpia pero no tiene los joins ni los agregados que el negocio necesita — requiere conocimiento del modelo de datos para usarla correctamente.</p>
+      <p><strong>Razón 2 — Acoplamiento peligroso.</strong> Si el equipo de datos necesita renombrar una columna en Silver (por ejemplo, renombrar <code>order_purchase_timestamp</code> a <code>purchased_at</code>), y el equipo comercial tiene dashboards conectados directamente a Silver, esos dashboards se rompen. Gold actúa como una API estable: el contrato público del equipo de datos hacia los consumidores.</p>
+      <p><strong>Razón 3 — Costo computacional.</strong> Bronze y Silver pueden tener cientos de millones de filas sin agregar. Una query analítica sobre Bronze sin particionamiento puede escanear terabytes. Gold ya tiene los datos pre-agregados, particionados y optimizados con ZORDER para los patrones de consulta exactos que usa el equipo comercial. La latencia es diferente en órdenes de magnitud.</p>
+      <div class="callout info">
+        <span class="callout-icon">ℹ</span>
+        <strong>Gold es el contrato de datos del equipo de Analytics hacia el negocio.</strong> Igual que una API tiene versionamiento y estabilidad, Gold garantiza que las métricas que consume BI tienen la lógica correcta, revisada y documentada por el equipo de datos.
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">4</div>
+      <div class="qa-q-text">Explica la diferencia entre ZORDER y particionamiento. ¿Cuándo usarías uno vs el otro?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p>Son dos técnicas de optimización de I/O complementarias, no alternativas. Operan en niveles diferentes del almacenamiento Delta.</p>
+      <p><strong>Particionamiento</strong> es una decisión de organización física de archivos. Cuando particionas <code>gold_revenue_by_category</code> por <code>purchase_month</code>, Delta crea carpetas separadas por mes en el storage. Una query que filtra <code>WHERE purchase_month = '2026-04'</code> solo lee la carpeta de abril — el resto ni siquiera se toca. Es una <em>eliminación de particiones</em> (partition pruning). Funciona muy bien cuando la cardinalidad del campo de partición es baja (12 meses, 7 días de semana, 5 categorías) y cuando las queries siempre filtran por ese campo exacto.</p>
+      <p><strong>ZORDER</strong> opera dentro de cada archivo Parquet. En lugar de separar datos en carpetas, reorganiza físicamente los registros dentro del archivo para que los que tienen valores similares en la columna ZORDER queden contiguos en disco. Una query que filtra <code>WHERE order_date BETWEEN '2026-04-01' AND '2026-04-30'</code> puede leer solo los bloques de disco que contienen ese rango de fechas, en lugar del archivo completo. Es especialmente útil para campos de alta cardinalidad como timestamps, IDs de vendedor o coordenadas.</p>
+
+      <table class="opt-table">
+        <tr><th>Criterio</th><th>Particionamiento</th><th>ZORDER</th></tr>
+        <tr><td>Nivel</td><td>Carpetas en storage</td><td>Bloques dentro de archivos</td></tr>
+        <tr><td>Cardinalidad ideal</td><td>Baja (< 1000 valores)</td><td>Alta (miles a millones)</td></tr>
+        <tr><td>Filtros que beneficia</td><td>Igualdad exacta (=)</td><td>Rangos y lookups (BETWEEN, IN)</td></tr>
+        <tr><td>Costo de aplicar</td><td>Al escribir (automático)</td><td>OPTIMIZE explícito</td></tr>
+        <tr><td>Ejemplo Olist</td><td>gold por purchase_month</td><td>silver_orders por order_date</td></tr>
+      </table>
+
+      <p>En la práctica, se usan juntos: particionas por mes y dentro de cada partición aplicas ZORDER por seller_id. Así, las queries del equipo comercial que preguntan "revenue del vendedor X en abril" solo leen la carpeta de abril y dentro de esa carpeta saltan directo a los bloques con el seller_id correcto.</p>
+    </div>
+  </div>
+
+</div><!-- /qa-section parte 1 -->
+
+
+<!-- ═══════════════════════════════════ PARTE 2 ═══════════════════════════════════ -->
+<div class="part-divider">
+  <span class="part-num">Parte 2</span>
+  <span class="part-title">Tu Caso — Plataforma EduStream (Agentic Medallion)</span>
+</div>
+
+<div class="scenario">
+  <div class="scenario-label">Escenario</div>
+  <p>EduStream es una plataforma de cursos online en LATAM. Genera diariamente archivos batch desde cuatro fuentes: <strong>enrollments.csv</strong> (inscripciones con monedas mixtas), <strong>courses.csv</strong> (catálogo con categorías a veces en blanco), <strong>progress.csv</strong> (progreso con posibles registros corruptos donde total_lessons=0) e <strong>instructors.csv</strong> (con country=NULL en algunos casos). El diseño propuesto va más allá del medallion estándar: incorpora un orquestador multi-agente LangGraph con 6 agentes especializados, MCP tools, contratos de datos y observabilidad end-to-end.</p>
+</div>
+
+<!-- Diagrama arquitectura EduStream -->
+<div class="diagram-wrap">
+  <div class="diagram-title">Arquitectura Medallion Agentic — EduStream</div>
+  <svg width="100%" viewBox="0 0 880 420" style="font-family:'DM Sans',sans-serif">
+    <!-- FUENTES -->
+    <g>
+      <rect x="10" y="30" width="110" height="22" rx="5" fill="rgba(43,127,255,0.08)" stroke="rgba(43,127,255,0.25)" stroke-width="0.8"/>
+      <text x="65" y="45" text-anchor="middle" fill="#6B7E99" font-size="10" font-weight="600" letter-spacing="1">FUENTES</text>
+      <rect x="10" y="64" width="110" height="32" rx="5" fill="rgba(43,127,255,0.06)" stroke="rgba(43,127,255,0.18)" stroke-width="0.7"/>
+      <text x="65" y="80" text-anchor="middle" fill="#A8B8D0" font-size="10">enrollments.csv</text>
+      <text x="65" y="91" text-anchor="middle" fill="#6B7E99" font-size="9">monedas mixtas</text>
+      <rect x="10" y="104" width="110" height="32" rx="5" fill="rgba(43,127,255,0.06)" stroke="rgba(43,127,255,0.18)" stroke-width="0.7"/>
+      <text x="65" y="120" text-anchor="middle" fill="#A8B8D0" font-size="10">courses.csv</text>
+      <text x="65" y="131" text-anchor="middle" fill="#6B7E99" font-size="9">category a veces vacío</text>
+      <rect x="10" y="144" width="110" height="32" rx="5" fill="rgba(43,127,255,0.06)" stroke="rgba(43,127,255,0.18)" stroke-width="0.7"/>
+      <text x="65" y="160" text-anchor="middle" fill="#A8B8D0" font-size="10">progress.csv</text>
+      <text x="65" y="171" text-anchor="middle" fill="#6B7E99" font-size="9">total_lessons=0 corrupto</text>
+      <rect x="10" y="184" width="110" height="32" rx="5" fill="rgba(43,127,255,0.06)" stroke="rgba(43,127,255,0.18)" stroke-width="0.7"/>
+      <text x="65" y="200" text-anchor="middle" fill="#A8B8D0" font-size="10">instructors.csv</text>
+      <text x="65" y="211" text-anchor="middle" fill="#6B7E99" font-size="9">country=NULL</text>
+    </g>
+    <!-- arrows fuentes→bronze -->
+    <line x1="120" y1="80" x2="148" y2="80" stroke="#2B7FFF" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar)"/>
+    <line x1="120" y1="120" x2="148" y2="120" stroke="#2B7FFF" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar)"/>
+    <line x1="120" y1="160" x2="148" y2="160" stroke="#2B7FFF" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar)"/>
+    <line x1="120" y1="200" x2="148" y2="200" stroke="#2B7FFF" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar)"/>
+    <!-- BRONZE -->
+    <rect x="150" y="20" width="162" height="240" rx="10" fill="rgba(200,121,65,0.08)" stroke="rgba(200,121,65,0.35)" stroke-width="0.8"/>
+    <text x="231" y="40" text-anchor="middle" fill="#C87941" font-size="11" font-weight="700" letter-spacing="2">BRONZE</text>
+    <text x="231" y="54" text-anchor="middle" fill="#6B7E99" font-size="9">Raw · inmutable · auditable</text>
+    <rect x="162" y="64" width="138" height="38" rx="6" fill="rgba(200,121,65,0.1)" stroke="rgba(200,121,65,0.2)" stroke-width="0.7"/>
+    <text x="231" y="80" text-anchor="middle" fill="#C87941" font-size="10" font-weight="600">bronze_enrollments</text>
+    <text x="231" y="93" text-anchor="middle" fill="#6B7E99" font-size="9">+_ingest_ts +_source_file</text>
+    <rect x="162" y="108" width="138" height="32" rx="6" fill="rgba(200,121,65,0.1)" stroke="rgba(200,121,65,0.2)" stroke-width="0.7"/>
+    <text x="231" y="128" text-anchor="middle" fill="#C87941" font-size="10" font-weight="600">bronze_courses</text>
+    <rect x="162" y="146" width="138" height="38" rx="6" fill="rgba(200,121,65,0.1)" stroke="rgba(200,121,65,0.2)" stroke-width="0.7"/>
+    <text x="231" y="162" text-anchor="middle" fill="#C87941" font-size="10" font-weight="600">bronze_progress</text>
+    <text x="231" y="175" text-anchor="middle" fill="#6B7E99" font-size="9">corruptos incluidos</text>
+    <rect x="162" y="190" width="138" height="32" rx="6" fill="rgba(200,121,65,0.1)" stroke="rgba(200,121,65,0.2)" stroke-width="0.7"/>
+    <text x="231" y="210" text-anchor="middle" fill="#C87941" font-size="10" font-weight="600">bronze_instructors</text>
+    <rect x="162" y="228" width="138" height="22" rx="4" fill="rgba(231,70,70,0.1)" stroke="rgba(231,70,70,0.25)" stroke-width="0.7"/>
+    <text x="231" y="243" text-anchor="middle" fill="#F87171" font-size="9">_quarantine</text>
+    <!-- arrows bronze→silver -->
+    <line x1="312" y1="83" x2="340" y2="83" stroke="#8BAAC8" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar2)"/>
+    <line x1="312" y1="124" x2="340" y2="124" stroke="#8BAAC8" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar2)"/>
+    <line x1="312" y1="165" x2="340" y2="165" stroke="#8BAAC8" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar2)"/>
+    <line x1="312" y1="206" x2="340" y2="206" stroke="#8BAAC8" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar2)"/>
+    <!-- SILVER -->
+    <rect x="342" y="20" width="172" height="250" rx="10" fill="rgba(139,170,200,0.07)" stroke="rgba(139,170,200,0.3)" stroke-width="0.8"/>
+    <text x="428" y="40" text-anchor="middle" fill="#8BAAC8" font-size="11" font-weight="700" letter-spacing="2">SILVER</text>
+    <text x="428" y="54" text-anchor="middle" fill="#6B7E99" font-size="9">Conformed · cleansed · joined</text>
+    <rect x="354" y="64" width="148" height="44" rx="6" fill="rgba(139,170,200,0.1)" stroke="rgba(139,170,200,0.2)" stroke-width="0.7"/>
+    <text x="428" y="81" text-anchor="middle" fill="#8BAAC8" font-size="10" font-weight="600">silver_enrollments</text>
+    <text x="428" y="94" text-anchor="middle" fill="#6B7E99" font-size="9">payment → USD · NULL→0</text>
+    <rect x="354" y="114" width="148" height="44" rx="6" fill="rgba(139,170,200,0.1)" stroke="rgba(139,170,200,0.2)" stroke-width="0.7"/>
+    <text x="428" y="131" text-anchor="middle" fill="#8BAAC8" font-size="10" font-weight="600">silver_courses_scd2</text>
+    <text x="428" y="144" text-anchor="middle" fill="#6B7E99" font-size="9">valid_from/to · is_current</text>
+    <rect x="354" y="164" width="148" height="44" rx="6" fill="rgba(139,170,200,0.1)" stroke="rgba(139,170,200,0.2)" stroke-width="0.7"/>
+    <text x="428" y="181" text-anchor="middle" fill="#8BAAC8" font-size="10" font-weight="600">silver_progress</text>
+    <text x="428" y="194" text-anchor="middle" fill="#6B7E99" font-size="9">total_lessons&gt;0 · completion_pct</text>
+    <rect x="354" y="214" width="148" height="36" rx="6" fill="rgba(139,170,200,0.1)" stroke="rgba(139,170,200,0.2)" stroke-width="0.7"/>
+    <text x="428" y="231" text-anchor="middle" fill="#8BAAC8" font-size="10" font-weight="600">silver_instructors</text>
+    <text x="428" y="244" text-anchor="middle" fill="#6B7E99" font-size="9">country NULL → 'desconocido'</text>
+    <!-- arrows silver→gold -->
+    <line x1="514" y1="86" x2="542" y2="86" stroke="#D4A017" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar3)"/>
+    <line x1="514" y1="136" x2="542" y2="136" stroke="#D4A017" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar3)"/>
+    <line x1="514" y1="186" x2="542" y2="186" stroke="#D4A017" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar3)"/>
+    <line x1="514" y1="232" x2="542" y2="232" stroke="#D4A017" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#ar3)"/>
+    <!-- GOLD -->
+    <rect x="544" y="20" width="170" height="250" rx="10" fill="rgba(212,160,23,0.07)" stroke="rgba(212,160,23,0.3)" stroke-width="0.8"/>
+    <text x="629" y="40" text-anchor="middle" fill="#D4A017" font-size="11" font-weight="700" letter-spacing="2">GOLD</text>
+    <text x="629" y="54" text-anchor="middle" fill="#6B7E99" font-size="9">Star schema · solo se consulta aquí</text>
+    <rect x="556" y="64" width="146" height="38" rx="6" fill="rgba(212,160,23,0.1)" stroke="rgba(212,160,23,0.2)" stroke-width="0.7"/>
+    <text x="629" y="80" text-anchor="middle" fill="#D4A017" font-size="10" font-weight="600">gold_completion_rate</text>
+    <text x="629" y="93" text-anchor="middle" fill="#6B7E99" font-size="9">% usuarios 100% lecciones</text>
+    <rect x="556" y="108" width="146" height="38" rx="6" fill="rgba(212,160,23,0.1)" stroke="rgba(212,160,23,0.2)" stroke-width="0.7"/>
+    <text x="629" y="124" text-anchor="middle" fill="#D4A017" font-size="10" font-weight="600">gold_revenue_instructor</text>
+    <text x="629" y="137" text-anchor="middle" fill="#6B7E99" font-size="9">SUM(payment_usd) por instructor</text>
+    <rect x="556" y="152" width="146" height="38" rx="6" fill="rgba(212,160,23,0.1)" stroke="rgba(212,160,23,0.2)" stroke-width="0.7"/>
+    <text x="629" y="168" text-anchor="middle" fill="#D4A017" font-size="10" font-weight="600">gold_cursos_abandonados</text>
+    <text x="629" y="181" text-anchor="middle" fill="#6B7E99" font-size="9">alta inscripción · bajo completion</text>
+    <rect x="556" y="196" width="146" height="38" rx="6" fill="rgba(212,160,23,0.1)" stroke="rgba(212,160,23,0.2)" stroke-width="0.7"/>
+    <text x="629" y="212" text-anchor="middle" fill="#D4A017" font-size="10" font-weight="600">gold_top_categorias</text>
+    <text x="629" y="225" text-anchor="middle" fill="#6B7E99" font-size="9">revenue/mes × categoría</text>
+    <rect x="556" y="240" width="146" height="22" rx="4" fill="rgba(43,127,255,0.08)" stroke="rgba(43,127,255,0.2)" stroke-width="0.7"/>
+    <text x="629" y="255" text-anchor="middle" fill="#5599FF" font-size="9">feature_store (ML)</text>
+    <!-- OPTIMIZACIONES -->
+    <rect x="10" y="290" width="704" height="110" rx="10" fill="rgba(43,127,255,0.04)" stroke="rgba(43,127,255,0.15)" stroke-width="0.7"/>
+    <text x="362" y="310" text-anchor="middle" fill="#5599FF" font-size="11" font-weight="700" letter-spacing="1.5">OPTIMIZACIONES APLICADAS</text>
+    <rect x="22" y="318" width="164" height="72" rx="7" fill="rgba(200,121,65,0.07)" stroke="rgba(200,121,65,0.2)" stroke-width="0.7"/>
+    <text x="104" y="334" text-anchor="middle" fill="#C87941" font-size="10" font-weight="600">ZORDER enrolled_at</text>
+    <text x="104" y="348" text-anchor="middle" fill="#6B7E99" font-size="9">silver_enrollments</text>
+    <text x="104" y="362" text-anchor="middle" fill="#6B7E99" font-size="9">queries filtran por fecha</text>
+    <text x="104" y="376" text-anchor="middle" fill="#6B7E99" font-size="9">→ menos I/O</text>
+    <rect x="196" y="318" width="164" height="72" rx="7" fill="rgba(139,170,200,0.07)" stroke="rgba(139,170,200,0.2)" stroke-width="0.7"/>
+    <text x="278" y="334" text-anchor="middle" fill="#8BAAC8" font-size="10" font-weight="600">ZORDER course_id</text>
+    <text x="278" y="348" text-anchor="middle" fill="#6B7E99" font-size="9">silver_progress</text>
+    <text x="278" y="362" text-anchor="middle" fill="#6B7E99" font-size="9">joins frecuentes</text>
+    <text x="278" y="376" text-anchor="middle" fill="#6B7E99" font-size="9">→ lookup acelerado</text>
+    <rect x="370" y="318" width="164" height="72" rx="7" fill="rgba(212,160,23,0.07)" stroke="rgba(212,160,23,0.2)" stroke-width="0.7"/>
+    <text x="452" y="334" text-anchor="middle" fill="#D4A017" font-size="10" font-weight="600">Partición por mes</text>
+    <text x="452" y="348" text-anchor="middle" fill="#6B7E99" font-size="9">gold_top_categorias</text>
+    <text x="452" y="362" text-anchor="middle" fill="#6B7E99" font-size="9">reportes = 1 mes</text>
+    <text x="452" y="376" text-anchor="middle" fill="#6B7E99" font-size="9">→ evita full scan</text>
+    <rect x="544" y="318" width="160" height="72" rx="7" fill="rgba(107,126,153,0.07)" stroke="rgba(107,126,153,0.2)" stroke-width="0.7"/>
+    <text x="624" y="334" text-anchor="middle" fill="#A8B8D0" font-size="10" font-weight="600">VACUUM c/7 días</text>
+    <text x="624" y="348" text-anchor="middle" fill="#6B7E99" font-size="9">todas las tablas Delta</text>
+    <text x="624" y="362" text-anchor="middle" fill="#6B7E99" font-size="9">limpia versiones antiguas</text>
+    <text x="624" y="376" text-anchor="middle" fill="#6B7E99" font-size="9">→ storage controlado</text>
+    <!-- defs markers -->
+    <defs>
+      <marker id="ar" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke="#2B7FFF" stroke-width="1.2"/>
+      </marker>
+      <marker id="ar2" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke="#8BAAC8" stroke-width="1.2"/>
+      </marker>
+      <marker id="ar3" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke="#D4A017" stroke-width="1.2"/>
+      </marker>
+    </defs>
+  </svg>
+</div>
+
+<!-- Agentes -->
+<p style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin:28px 0 14px;">Capa Agentic — LangGraph Multi-Agent Orchestration</p>
+<div class="agents-grid">
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Supervisor Agent</div>
+      <div class="agent-model">claude-sonnet-4-5</div>
+    </div>
+    <div class="agent-desc">Router + planner. Decide qué agente ejecutar en cada paso, evalúa el DQ score y escala a humano si el pipeline encuentra anomalías fuera de umbral.</div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot" style="background:#C87941"></div>
+      <div class="agent-name">Ingestion Agent</div>
+      <div class="agent-model">claude-haiku-4-5</div>
+    </div>
+    <div class="agent-desc">Auto Loader + detección de schema drift. Carga los 4 CSVs a Bronze con columnas de auditoría. Si detecta una columna nueva en el CSV, notifica antes de continuar.</div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot" style="background:#8BAAC8"></div>
+      <div class="agent-name">Quality Agent</div>
+      <div class="agent-model">claude-haiku-4-5</div>
+    </div>
+    <div class="agent-desc">Great Expectations + PSI (Population Stability Index). Detecta drift de distribución en payment_amount, envía filas corruptas a cuarentena y abre PR en dbt si PSI > 0.2.</div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot" style="background:#D4A017"></div>
+      <div class="agent-name">Transformation Agent</div>
+      <div class="agent-model">claude-sonnet-4-5</div>
+    </div>
+    <div class="agent-desc">dbt + PySpark. Orquesta la conversión Bronze→Silver→Gold incluyendo SCD2 para courses, normalización de moneda y construcción del star schema en Gold.</div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot" style="background:#00C8FF"></div>
+      <div class="agent-name">Semantic Agent</div>
+      <div class="agent-model">claude-sonnet-4-5</div>
+    </div>
+    <div class="agent-desc">Text2SQL + auditoría de queries. Traduce preguntas del CFO a SQL válido sobre Gold únicamente. Verifica que no acceda a Bronze ni Silver y registra la query auditada.</div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-dot" style="background:#34D399"></div>
+      <div class="agent-name">Observability Agent</div>
+      <div class="agent-model">claude-haiku-4-5</div>
+    </div>
+    <div class="agent-desc">SLO monitoring + MLflow + Logfire/OTel. Verifica freshness, DQ score y costo de la corrida. Registra todas las métricas y cierra el estado del pipeline.</div>
+  </div>
+</div>
+
+<!-- Preguntas de diseño Parte 2 -->
+<p style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin:36px 0 14px;">Preguntas de diseño</p>
+
+<div class="qa-section">
+
+  <div class="qa-card open">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">a</div>
+      <div class="qa-q-text">Los datos de progress.csv tienen filas donde total_lessons = 0. ¿En qué capa los filtras y por qué?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p>Se filtran en <strong>Silver</strong>, nunca en Bronze. La decisión sigue el mismo principio que Olist: Bronze es inmutable y auditable. Si eliminamos las filas corruptas en Bronze, perdemos la capacidad de auditarlas más adelante — ¿fueron corruptas desde el origen? ¿Es un problema del proveedor de datos? ¿Cuándo empezó? Bronze preserva esa evidencia.</p>
+      <p>En Silver, el Quality Agent previamente ya las identificó y envió a <code>_quarantine</code>. El Transformation Agent entonces aplica el filtro explícito antes de calcular <code>completion_pct</code>:</p>
+      <div class="code-block"><pre><span class="cm">-- silver_progress: filtra corruptos y calcula métricas</span>
+<span class="kw">CREATE OR REPLACE TABLE</span> edustream.silver.progress <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  user_id,
+  course_id,
+  lessons_completed,
+  total_lessons,
+  <span class="fn">ROUND</span>(lessons_completed / total_lessons * <span class="num">100.0</span>, <span class="num">2</span>) <span class="kw">AS</span> completion_pct,
+  (lessons_completed = total_lessons)               <span class="kw">AS</span> completion_flag,
+  last_activity_at
+<span class="kw">FROM</span> edustream.bronze.progress
+<span class="kw">WHERE</span> total_lessons <span class="kw">></span> <span class="num">0</span>                 <span class="cm">-- filtra corruptos aquí</span>
+  <span class="kw">AND</span> lessons_completed <span class="kw"><=</span> total_lessons  <span class="cm">-- integridad referencial</span></pre></div>
+      <div class="callout ok">
+        <span class="callout-icon">✓</span>
+        <strong>Regla:</strong> Bronze guarda el dato corrupto para auditoría. Silver lo excluye de la computación. Gold nunca lo ve. Las filas en cuarentena se pueden revisar manualmente y reprocesar si el error era del pipeline y no de la fuente.
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">b</div>
+      <div class="qa-q-text">Los pagos llegan en USD, MXN, COP y PEN. ¿En qué capa normalizas la moneda y cómo lo harías con PySpark?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p>La normalización va en <strong>Silver</strong>, por la misma lógica que Olist. Bronze guarda la moneda original tal como llegó — eso es auditable y permite recalcular si las tasas de cambio se actualizan. Gold solo consume datos ya normalizados, sin lógica de conversión.</p>
+      <p>Con PySpark, usando <code>withColumn</code> y <code>when/otherwise</code> para el mapeo de monedas:</p>
+      <div class="code-block"><pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> functions <span class="kw">as</span> F
+
+<span class="cm"># Tasas aproximadas — en producción vendrían de una tabla</span>
+<span class="cm"># de referencia actualizada diariamente (FX rates table)</span>
+FX_RATES = {
+    <span class="str">"MXN"</span>: <span class="num">17.5</span>,
+    <span class="str">"COP"</span>: <span class="num">4200.0</span>,
+    <span class="str">"PEN"</span>: <span class="num">3.8</span>,
+    <span class="str">"USD"</span>: <span class="num">1.0</span>,
+}
+
+df_silver = df_bronze.withColumn(
+    <span class="str">"payment_usd"</span>,
+    F.when(F.col(<span class="str">"currency"</span>) == <span class="str">"MXN"</span>,
+           F.round(F.col(<span class="str">"payment_amount"</span>) / F.lit(<span class="num">17.5</span>), <span class="num">2</span>))
+     .when(F.col(<span class="str">"currency"</span>) == <span class="str">"COP"</span>,
+           F.round(F.col(<span class="str">"payment_amount"</span>) / F.lit(<span class="num">4200.0</span>), <span class="num">2</span>))
+     .when(F.col(<span class="str">"currency"</span>) == <span class="str">"PEN"</span>,
+           F.round(F.col(<span class="str">"payment_amount"</span>) / F.lit(<span class="num">3.8</span>), <span class="num">2</span>))
+     .otherwise(F.col(<span class="str">"payment_amount"</span>))   <span class="cm"># USD sin conversión</span>
+).withColumn(
+    <span class="str">"payment_amount"</span>,
+    F.coalesce(F.col(<span class="str">"payment_amount"</span>), F.lit(<span class="num">0.0</span>))  <span class="cm"># NULL → 0 (gratis)</span>
+).withColumn(
+    <span class="str">"currency_original"</span>, F.col(<span class="str">"currency"</span>)  <span class="cm"># preserva la moneda original</span>
+)</pre></div>
+      <div class="callout info">
+        <span class="callout-icon">ℹ</span>
+        En producción, las tasas de cambio no se hardcodean — se leen de una tabla <code>silver.fx_rates</code> que se actualiza diariamente desde una API de tipo Open Exchange Rates. El Transformation Agent hace el <code>JOIN</code> con la tasa vigente al <code>enrolled_at</code>, no la tasa del día de procesamiento.
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question" onclick="toggle(this)">
+      <div class="qa-num">c</div>
+      <div class="qa-q-text">Un instructor tiene country = NULL. ¿Tu pipeline falla o lo maneja? ¿Qué haces en Silver con esos registros?</div>
+      <div class="qa-chevron">▾</div>
+    </div>
+    <div class="qa-answer">
+      <p><strong>El pipeline no falla.</strong> Esta es una decisión de diseño explícita: <code>country = NULL</code> es un dato válido desde el punto de vista de Bronze — el archivo fuente llegó así. No es un error del pipeline, es una limitación del dato de origen.</p>
+      <p>La estrategia tiene tres capas:</p>
+      <p><strong>Bronze:</strong> el registro se ingesta con <code>country = NULL</code> tal cual. El campo <code>_ingest_ts</code> y <code>_source_file</code> quedan registrados para trazabilidad.</p>
+      <p><strong>Silver:</strong> el Transformation Agent aplica <code>COALESCE</code> para mapear los nulos a un valor centinela estándar que los sistemas de BI y ML puedan manejar sin errores:</p>
+      <div class="code-block"><pre><span class="kw">CREATE OR REPLACE TABLE</span> edustream.silver.instructors <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  instructor_id,
+  name,
+  <span class="fn">COALESCE</span>(country, <span class="str">'desconocido'</span>) <span class="kw">AS</span> country,   <span class="cm">-- NULL → sentinela</span>
+  country                           <span class="kw">AS</span> country_original, <span class="cm">-- preserva</span>
+  <span class="fn">CAST</span>(joined_at <span class="kw">AS DATE</span>)         <span class="kw">AS</span> joined_at
+<span class="kw">FROM</span> edustream.bronze.instructors
+<span class="kw">WHERE</span> instructor_id <span class="kw">IS NOT NULL</span>  <span class="cm">-- solo el PK es obligatorio</span></pre></div>
+      <p><strong>Gold:</strong> los instructores con <code>country = 'desconocido'</code> aparecen en los reportes de revenue. Sus cursos sí generan ingresos — no tiene sentido excluirlos de las métricas. El equipo comercial puede filtrar por <code>country != 'desconocido'</code> si solo quiere análisis por geografía conocida.</p>
+      <div class="callout warn">
+        <span class="callout-icon">⚠</span>
+        <strong>Antipatrón a evitar:</strong> filtrar <code>WHERE country IS NOT NULL</code> en Silver. Eso eliminaría el revenue de esos instructores de todos los reportes Gold sin que el equipo comercial lo sepa. Siempre es mejor incluir con un centinela claro que excluir silenciosamente.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /qa-section parte 2 -->
+
+
+<!-- ═══════════════════════════════════ OPTIMIZACIONES ═══════════════════════════════════ -->
+<div class="part-divider" style="margin-top:48px">
+  <span class="part-num">Optimizaciones</span>
+  <span class="part-title">4 técnicas justificadas</span>
+</div>
+
+<table class="opt-table">
+  <tr>
+    <th>Técnica</th><th>Tabla</th><th>Justificación</th><th>Beneficio esperado</th>
+  </tr>
+  <tr>
+    <td>ZORDER BY enrolled_at</td>
+    <td>silver_enrollments</td>
+    <td>Los reportes Gold siempre filtran por rango de fechas (semana, mes). ZORDER co-localiza los registros con fechas similares en el mismo bloque de disco.</td>
+    <td>Reducción de I/O hasta 80% en queries con filtro de fecha</td>
+  </tr>
+  <tr>
+    <td>ZORDER BY course_id</td>
+    <td>silver_progress</td>
+    <td>Los joins entre progress y courses son frecuentes al calcular completion_rate. ZORDER acelera el lookup por course_id.</td>
+    <td>Join latency menor en gold_completion_rate</td>
+  </tr>
+  <tr>
+    <td>PARTITIONED BY (year_month)</td>
+    <td>gold_top_categorias</td>
+    <td>Los reportes comerciales siempre consultan un mes específico. Las particiones crean carpetas físicas por mes — Delta lee solo la del período solicitado.</td>
+    <td>Evita full scan; queries de 1 mes no leen datos de otros meses</td>
+  </tr>
+  <tr>
+    <td>VACUUM RETAIN 168 HOURS</td>
+    <td>Todas las tablas Delta</td>
+    <td>Delta Lake acumula versiones anteriores de archivos indefinidamente para time travel. Sin VACUUM el storage crece sin límite. 168h = 7 días de retención.</td>
+    <td>Storage costs controlados; sin degradar capacidad de time travel de 7 días</td>
+  </tr>
+</table>
+
+
+<!-- ═══════════════════════════════════ CHECKLIST ═══════════════════════════════════ -->
+<div class="part-divider" style="margin-top:48px">
+  <span class="part-num">Checklist</span>
+  <span class="part-title">Verificación de entregable</span>
+</div>
+
+<ul class="checklist">
+  <li><span class="check-icon">✓</span> Parte 1 — Diagrama de referencia Olist analizado (Bronze / Silver / Gold)</li>
+  <li><span class="check-icon">✓</span> Parte 1 — Pregunta 1: por qué Bronze no limpia (auditoría + rollback)</li>
+  <li><span class="check-icon">✓</span> Parte 1 — Pregunta 2: normalización de moneda en Silver (conformación única)</li>
+  <li><span class="check-icon">✓</span> Parte 1 — Pregunta 3: equipo comercial solo consulta Gold (contrato + costo + estabilidad)</li>
+  <li><span class="check-icon">✓</span> Parte 1 — Pregunta 4: ZORDER vs particionamiento (nivel, cardinalidad, tipo de filtro)</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Diagrama con 3 capas Bronze / Silver / Gold + anotaciones</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Capa Agentic: 6 agentes con LangGraph + MCP tools</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Mínimo 4 optimizaciones justificadas (ZORDER ×2, partición, VACUUM)</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Pregunta a: total_lessons=0 filtrado en Silver con SQL real</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Pregunta b: normalización moneda en Silver con PySpark completo</li>
+  <li><span class="check-icon">✓</span> Parte 2 — Pregunta c: country=NULL manejado sin fallar pipeline (COALESCE + centinela)</li>
+  <li><span class="check-icon">✓</span> Código real: 2,176 líneas Python en 14 archivos — testeado y validado</li>
+</ul>
+
+
+<!-- ═══════════════════════════════════ FOOTER ═══════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-brand">MCO<span>Y</span> AI + Data Strategy</div>
+  <div class="footer-meta">DataHackers Academy · S05 PySpark y Databricks · Mayo 2026</div>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<script>
+function toggle(btn) {
+  const card = btn.closest('.qa-card');
+  card.classList.toggle('open');
+}
+// Abrir todas al imprimir
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.qa-card').forEach(c => c.classList.add('open'));
+});
+</script>
+</body>
+</html>

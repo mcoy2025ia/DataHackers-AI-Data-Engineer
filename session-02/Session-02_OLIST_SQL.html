@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brazilian E-Commerce · SQL Analysis · MCOY · Sesión 02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f2ec;
+    --bg2:       #ede9e1;
+    --bg3:       #e4e0d6;
+    --ink:       #1a1814;
+    --ink2:      #3d3a34;
+    --ink3:      #6b6660;
+    --green:     #00b341;
+    --green-dim: #007a2d;
+    --green-bg:  rgba(0,179,65,0.07);
+    --green-bdr: rgba(0,179,65,0.25);
+    --red:       #d63030;
+    --amber:     #c47a00;
+    --blue:      #1d6fb8;
+    --border:    rgba(26,24,20,0.1);
+    --border2:   rgba(26,24,20,0.06);
+    --mono:      'JetBrains Mono', monospace;
+    --display:   'Cabinet Grotesk', sans-serif;
+    --serif:     'Newsreader', serif;
+    --radius:    6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* subtle grain texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    opacity: .025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+  }
+
+  main { position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 3rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: end;
+  }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-tag::before {
+    content: '▶';
+    font-size: .6rem;
+  }
+
+  header h1 {
+    font-family: var(--display);
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    font-weight: 900;
+    letter-spacing: -.04em;
+    line-height: 1;
+    color: #fff;
+  }
+
+  header h1 em {
+    font-style: normal;
+    color: var(--green);
+  }
+
+  .header-sub {
+    margin-top: 1.4rem;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: rgba(245,242,236,0.6);
+    max-width: 580px;
+    line-height: 1.65;
+  }
+
+  .header-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .5rem 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .hm-item {
+    font-family: var(--mono);
+    font-size: .72rem;
+    line-height: 1.5;
+  }
+
+  .hm-label { color: rgba(245,242,236,0.4); letter-spacing: .1em; }
+  .hm-value { color: rgba(245,242,236,0.85); }
+
+  .header-logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: .5rem;
+  }
+
+  .header-logo {
+    width: 80px;
+    opacity: 1;
+    filter: none;
+  }
+
+  /* green scanline strip */
+  .header-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--green) 0%, var(--green-dim) 60%, transparent 100%);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    overflow-x: auto;
+    padding: 0 3rem;
+  }
+
+  nav a {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(245,242,236,0.45);
+    text-decoration: none;
+    padding: .85rem 1.2rem;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .2s, border-color .2s;
+  }
+
+  nav a:hover { color: var(--green); border-bottom-color: var(--green); }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  section { padding: 6rem 0; border-bottom: 1px solid var(--border); }
+
+  /* ── SECTION HEADER ── */
+  .s-label {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--green-dim);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .s-label::before { content: '//'; color: var(--border); }
+
+  .s-title {
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: .7rem;
+  }
+
+  .s-title em { font-style: normal; color: var(--green-dim); }
+
+  .s-question {
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: var(--ink3);
+    margin-bottom: 2rem;
+    padding: .6rem 1rem;
+    border-left: 3px solid var(--green);
+    background: var(--green-bg);
+  }
+
+  /* ── SQL BLOCK ── */
+  .sql-wrap {
+    background: #1a1814;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 2.5rem 0;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+
+  .sql-header {
+    background: #111;
+    padding: .6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .sql-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .sql-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .sql-dot:nth-child(1) { background: #ff5f57; }
+  .sql-dot:nth-child(2) { background: #febc2e; }
+  .sql-dot:nth-child(3) { background: #28c840; }
+
+  .sql-filename {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sql-lang {
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: .15em;
+    color: var(--green);
+    text-transform: uppercase;
+  }
+
+  pre {
+    padding: 1.8rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.75;
+    color: #c9c4bb;
+  }
+
+  /* SQL syntax highlighting */
+  .kw  { color: #569cd6; font-weight: 500; } /* keywords */
+  .fn  { color: #dcdcaa; }                   /* functions */
+  .str { color: #ce9178; }                   /* strings */
+  .cmt { color: #6a9955; font-style: italic; }/* comments */
+  .op  { color: var(--green); }              /* operators / numbers */
+  .tbl { color: #4ec9b0; }                   /* tables */
+  .col { color: #9cdcfe; }                   /* columns */
+
+  /* ── FINDINGS ── */
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.2rem;
+    margin: 2.5rem 0;
+  }
+
+  .finding-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    position: relative;
+    transition: box-shadow .2s;
+  }
+
+  .finding-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .finding-num {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--green);
+    letter-spacing: .15em;
+    margin-bottom: .6rem;
+  }
+
+  .finding-text {
+    font-size: .9rem;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  .finding-text strong { color: var(--ink); font-weight: 600; }
+
+  /* ── RECOMMENDATION ── */
+  .reco {
+    background: var(--ink);
+    color: #e8e4db;
+    border-radius: var(--radius);
+    padding: 2rem 2.5rem;
+    margin-top: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .reco::before {
+    content: 'ACCIÓN';
+    position: absolute;
+    top: 1.5rem; right: 2rem;
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: .25em;
+    color: var(--green);
+    opacity: .7;
+  }
+
+  .reco-team {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .15em;
+    color: var(--green);
+    margin-bottom: .8rem;
+    text-transform: uppercase;
+  }
+
+  .reco-text {
+    font-family: var(--serif);
+    font-size: .95rem;
+    line-height: 1.8;
+  }
+
+  .reco-text strong { color: #fff; font-weight: 400; }
+
+  /* ── DATA TABLE ── */
+  .dt-wrap {
+    overflow-x: auto;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+  }
+
+  .dt-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .8rem;
+  }
+
+  .dt-wrap thead tr {
+    background: var(--bg3);
+  }
+
+  .dt-wrap thead th {
+    padding: .7rem 1rem;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .dt-wrap tbody tr:hover { background: var(--bg2); }
+  .dt-wrap tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border2); }
+
+  .dt-wrap tbody td {
+    padding: .65rem 1rem;
+    color: var(--ink2);
+    vertical-align: middle;
+    font-family: var(--mono);
+    font-size: .78rem;
+  }
+
+  .dt-wrap tbody td.name {
+    font-family: var(--serif);
+    font-size: .85rem;
+    color: var(--ink);
+  }
+
+  .num-cell { text-align: right; }
+
+  /* ── BAR INLINE ── */
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 5px;
+    background: var(--bg3);
+    border-radius: 99px;
+    min-width: 60px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  .bar-fill.amber { background: var(--amber); }
+  .bar-fill.red   { background: var(--red); }
+
+  /* ── TREND BADGES ── */
+  .trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .trend-up    { background: rgba(0,179,65,0.1);  color: var(--green-dim); }
+  .trend-down  { background: rgba(214,48,48,0.1); color: var(--red); }
+  .trend-flat  { background: rgba(196,122,0,0.1); color: var(--amber); }
+  .trend-strong-up   { background: rgba(0,179,65,0.18); color: #005c21; font-weight: 700; }
+  .trend-strong-down { background: rgba(214,48,48,0.18); color: #8b0000; font-weight: 700; }
+
+  /* ── STAT BAR (header metrics) ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+
+  .stat-cell {
+    background: #fff;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .stat-cell .n {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-cell .n em { font-style: normal; color: var(--green-dim); }
+
+  .stat-cell .l {
+    font-family: var(--mono);
+    font-size: .67rem;
+    letter-spacing: .1em;
+    color: var(--ink3);
+    margin-top: 4px;
+  }
+
+  /* ── RETO HEADER ── */
+  .reto-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .reto-num {
+    font-family: var(--mono);
+    font-size: 5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--border);
+    letter-spacing: -.05em;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  /* ── INTRO SECTION ── */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  .intro-prose {
+    font-size: 1.05rem;
+    color: var(--ink2);
+    line-height: 1.8;
+  }
+
+  .intro-prose strong { color: var(--ink); }
+  .intro-prose em { color: var(--ink3); }
+
+  .design-notes {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .dn-title {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--green-dim);
+    margin-bottom: 1rem;
+  }
+
+  .dn-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+  }
+
+  .dn-list li {
+    font-family: var(--mono);
+    font-size: .75rem;
+    color: var(--ink2);
+    display: flex;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .dn-list li::before {
+    content: '→';
+    color: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* ── DIVIDER ── */
+  .reto-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 4rem;
+  }
+
+  .reto-divider .line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .reto-divider .tag {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    color: var(--ink3);
+    text-transform: uppercase;
+  }
+
+  /* ── INSIGHT CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--green);
+    padding: 1rem 1.5rem;
+    background: var(--green-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 2rem 0;
+    font-size: .9rem;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--ink); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    padding: 4rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .footer-logo {
+    width: 50px;
+    filter: none;
+    opacity: .9;
+  }
+
+  .footer-text {
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: rgba(245,242,236,0.35);
+    line-height: 1.6;
+  }
+
+  .footer-right {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: rgba(245,242,236,0.25);
+    text-align: right;
+  }
+
+  /* ── CONCLUSION ── */
+  .conclusion-block {
+    background: var(--ink);
+    color: #e8e4db;
+    border-radius: var(--radius);
+    padding: 3.5rem;
+    margin-top: 3rem;
+  }
+
+  .conclusion-block h3 {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+
+  .conclusion-block p {
+    font-family: var(--serif);
+    font-size: 1rem;
+    line-height: 1.85;
+    color: rgba(232,228,219,0.8);
+    max-width: 780px;
+    margin-bottom: 1rem;
+  }
+
+  .conclusion-block p strong { color: #fff; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  header h1, .header-tag, .header-sub { animation: fadeUp .7s ease both; }
+  .header-tag { animation-delay: 0s; }
+  header h1   { animation-delay: .1s; }
+  .header-sub { animation-delay: .2s; }
+
+  @media (max-width: 900px) {
+    .header-inner { grid-template-columns: 1fr; }
+    .header-logo-wrap { display: none; }
+    .intro-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .container { padding: 0 1.5rem; }
+    nav { padding: 0 1.5rem; }
+    .reto-num { font-size: 3rem; }
+    footer { flex-direction: column; }
+    .footer-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="header-tag">DataHackers Academy · AI Data Engineer Bootcamp · Sesión 02</div>
+      <h1>Brazilian E-Commerce<br><em>SQL Analysis</em></h1>
+      <p class="header-sub">Análisis de ventas sobre el dataset público de Olist (2016–2018). Motor: PostgreSQL 18. Cinco retos de SQL aplicado a contexto de negocio real.</p>
+      <div class="header-meta-grid">
+        <div class="hm-item">
+          <div class="hm-label">Autor</div>
+          <div class="hm-value">Manuel Alberto Coy Benavides</div>
+        </div>
+        <div class="hm-item">
+          <div class="hm-label">Dataset</div>
+          <div class="hm-value">Olist · Kaggle · 2016–2018</div>
+        </div>
+        <div class="hm-item">
+          <div class="hm-label">Motor SQL</div>
+          <div class="hm-value">PostgreSQL 18 · Local</div>
+        </div>
+        <div class="hm-item">
+          <div class="hm-label">Fecha</div>
+          <div class="hm-value">Mayo 2026</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-logo-wrap">
+      <img class="header-logo" src="data:image/jpeg;base64,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" alt="MCOY">
+    </div>
+  </div>
+  <div class="header-strip"></div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#intro">Dataset</a>
+  <a href="#reto1">Reto 1 · Top Productos</a>
+  <a href="#reto2">Reto 2 · MoM</a>
+  <a href="#reto3">Reto 3 · Clientes</a>
+  <a href="#reto4">Reto 4 · Categorías</a>
+  <a href="#reto5">Reto 5 · Ticket x Estado</a>
+  <a href="#conclusion">Conclusión</a>
+</nav>
+
+<!-- ══ INTRO ══ -->
+<section id="intro">
+  <div class="container">
+    <div class="s-label">Dataset · Motor · Decisiones de Diseño</div>
+    <h2 class="s-title">El dataset y las <em>tres decisiones</em> que definen todo</h2>
+
+    <div class="intro-grid">
+      <div class="intro-prose">
+        <p>El dataset proviene del repositorio público <strong>Brazilian E-Commerce (Olist)</strong> en Kaggle, y cubre transacciones de un marketplace brasileño entre <strong>septiembre de 2016 y agosto de 2018</strong>. El motor SQL utilizado es PostgreSQL 18 corriendo en local.</p>
+        <br>
+        <p>Tres decisiones de diseño son fundamentales para interpretar correctamente los resultados:</p>
+        <br>
+        <p><strong>(1) Revenue = <code style="font-family:var(--mono);font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px">order_items.price</code></strong> — el precio neto del ítem vendido, excluyendo <code style="font-family:var(--mono);font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px">payment_value</code> de la tabla de pagos para evitar duplicación en órdenes con cuotas o múltiples métodos de pago.</p>
+        <br>
+        <p><strong>(2) Filtro base: <code style="font-family:var(--mono);font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px">order_status = 'delivered'</code></strong> en todos los retos — trabajando exclusivamente con transacciones completadas.</p>
+        <br>
+        <p><strong>(3) Clientes identificados por <code style="font-family:var(--mono);font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px">customer_unique_id</code></strong>, no por <code style="font-family:var(--mono);font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px">customer_id</code>, porque Olist genera un ID nuevo por cada orden, lo que haría parecer que todos los compradores adquirieron exactamente una vez.</p>
+      </div>
+
+      <div class="design-notes">
+        <div class="dn-title">// Decisiones de diseño SQL</div>
+        <ul class="dn-list">
+          <li><strong>revenue = SUM(oi.price)</strong><br>excluye payment_value para evitar duplicación en cuotas</li>
+          <li><strong>WHERE order_status = 'delivered'</strong><br>solo transacciones completadas en los 5 retos</li>
+          <li><strong>customer_unique_id</strong><br>Olist crea customer_id nuevo por orden — usar unique_id para RFM real</li>
+          <li><strong>COALESCE para categorías</strong><br>fallback: inglés → español → 'Unknown' para evitar NULLs en reportes</li>
+          <li><strong>NULLIF para divisiones</strong><br>protección contra división por cero en cálculos MoM</li>
+          <li><strong>DENSE_RANK vs RANK</strong><br>DENSE_RANK en clientes para evitar gaps en ranking cuando hay empates</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RETO 1 ══ -->
+<section id="reto1">
+  <div class="container">
+
+    <div class="reto-divider">
+      <div class="line"></div>
+      <div class="tag">Reto 01 / 05</div>
+      <div class="line"></div>
+    </div>
+
+    <div class="reto-header">
+      <div class="reto-num">01</div>
+      <div>
+        <div class="s-label">Análisis de Producto</div>
+        <h2 class="s-title">Top 10 Productos <em>por Ingresos</em></h2>
+        <div class="s-question">¿Qué productos individuales generan más revenue? ¿Qué perfil de ticket/volumen tienen?</div>
+      </div>
+    </div>
+
+    <!-- SQL -->
+    <div class="sql-wrap">
+      <div class="sql-header">
+        <div class="sql-dots">
+          <div class="sql-dot"></div><div class="sql-dot"></div><div class="sql-dot"></div>
+        </div>
+        <div class="sql-filename">reto_01_top_productos.sql</div>
+        <div class="sql-lang">PostgreSQL</div>
+      </div>
+      <pre><span class="kw">SELECT</span>
+    oi.<span class="col">product_id</span>,
+    <span class="cmt">-- Categoría en inglés para comunicación con el equipo</span>
+    <span class="fn">COALESCE</span>(ct.<span class="col">product_category_name_english</span>, p.<span class="col">product_category_name</span>, <span class="str">'Unknown'</span>) <span class="kw">AS</span> <span class="col">category</span>,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="col">order_id</span>)          <span class="kw">AS</span> <span class="col">total_orders</span>,
+    <span class="fn">SUM</span>(oi.<span class="col">price</span>)                       <span class="kw">AS</span> <span class="col">total_revenue</span>,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(oi.<span class="col">price</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>)    <span class="kw">AS</span> <span class="col">avg_price_per_unit</span>
+<span class="kw">FROM</span>   <span class="tbl">olist_orders_dataset</span>           o
+<span class="kw">JOIN</span>   <span class="tbl">olist_order_items_dataset</span>      oi  <span class="kw">ON</span> o.<span class="col">order_id</span>    = oi.<span class="col">order_id</span>
+<span class="kw">JOIN</span>   <span class="tbl">olist_products_dataset</span>         p   <span class="kw">ON</span> oi.<span class="col">product_id</span> = p.<span class="col">product_id</span>
+<span class="kw">LEFT JOIN</span> <span class="tbl">product_category_name_translation</span> ct
+                                        <span class="kw">ON</span> p.<span class="col">product_category_name</span> = ct.<span class="col">product_category_name</span>
+<span class="cmt">-- Solo órdenes efectivamente entregadas</span>
+<span class="kw">WHERE</span>  o.<span class="col">order_status</span> = <span class="str">'delivered'</span>
+<span class="kw">GROUP BY</span>
+    oi.<span class="col">product_id</span>,
+    p.<span class="col">product_category_name</span>,
+    ct.<span class="col">product_category_name_english</span>
+<span class="kw">ORDER BY</span> <span class="col">total_revenue</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="op">10</span>;</pre>
+    </div>
+
+    <!-- Results table -->
+    <div class="dt-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Categoría</th>
+            <th>Órdenes</th>
+            <th>Revenue Total</th>
+            <th class="num-cell">Ticket Promedio</th>
+            <th>Perfil</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--green);font-weight:700">01</td>
+            <td class="name">Health &amp; Beauty</td>
+            <td>186</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$63.560</span>
+                <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell">$327</td>
+            <td><span class="trend trend-strong-up">★ Estrella</span></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td class="name">Health &amp; Beauty</td>
+            <td>148</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$53.652</span>
+                <div class="bar-track"><div class="bar-fill" style="width:84%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell">$350</td>
+            <td><span class="trend trend-strong-up">★ Estrella</span></td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td class="name">Computers</td>
+            <td>33</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$45.949</span>
+                <div class="bar-track"><div class="bar-fill amber" style="width:72%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell" style="color:var(--amber);font-weight:700">$1.392</td>
+            <td><span class="trend trend-flat">Alto ticket</span></td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td class="name">Baby</td>
+            <td>38</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$38.907</span>
+                <div class="bar-track"><div class="bar-fill amber" style="width:61%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell" style="color:var(--amber);font-weight:700">$1.024</td>
+            <td><span class="trend trend-flat">Alto ticket</span></td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td class="name">Bed &amp; Bath Table</td>
+            <td>456</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$40.128</span>
+                <div class="bar-track"><div class="bar-fill" style="width:63%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell">$88</td>
+            <td><span class="trend trend-up">Alto volumen</span></td>
+          </tr>
+          <tr>
+            <td>06</td>
+            <td class="name">Furniture Decor</td>
+            <td>425</td>
+            <td>
+              <div class="bar-wrap">
+                <span>$30.175</span>
+                <div class="bar-track"><div class="bar-fill" style="width:47%"></div></div>
+              </div>
+            </td>
+            <td class="num-cell">$71</td>
+            <td><span class="trend trend-up">Alto volumen</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Findings -->
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 01</div>
+        <div class="finding-text"><strong>Health &amp; Beauty domina con dos productos que suman $117.212.</strong> El #1 genera $63.560 con ticket de $327 y el #2 $53.652 con $350 promedio. Volumen razonable combinado con precio alto — perfil ideal de producto estrella.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 02</div>
+        <div class="finding-text"><strong>Computers tiene el ticket más alto: $1.392/unidad.</strong> Solo 33 órdenes y $45.949 en ingresos. Un quiebre de stock cuesta $1.300+ por venta perdida — el margen de error logístico es mínimo.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 03</div>
+        <div class="finding-text"><strong>Baby logra $38.907 con apenas 38 órdenes</strong> (ticket $1.024). Mayor valor relativo por transacción del ranking. Extremadamente sensible a disponibilidad de stock.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 04</div>
+        <div class="finding-text"><strong>Bed &amp; Bath y Furniture Decor ganan por volumen, no por precio.</strong> 456 y 425 órdenes respectivamente con tickets de $88 y $71. Motores de tráfico y frecuencia, no de margen por ítem.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 05</div>
+        <div class="finding-text"><strong>El top 10 abarca cuatro categorías distintas.</strong> El revenue no depende de un solo segmento — fortaleza estructural del catálogo diversificado.</div>
+      </div>
+    </div>
+
+    <div class="reco">
+      <div class="reco-team">→ Comercial + Logística</div>
+      <div class="reco-text">
+        Políticas de stock diferenciadas por perfil: los dos productos de <strong>Health &amp; Beauty y Baby requieren disponibilidad garantizada permanente</strong> dado su ticket alto combinado con volumen sostenido. Para <strong>Computers (33 órdenes, $1.392 ticket)</strong>, la prioridad es eliminar tiempos de reposición — una semana de quiebre equivale a ~$10.000 en ventas no realizadas. Los productos de volumen bajo/ticket alto son candidatos ideales para <strong>alertas de stock automáticas antes de llegar a cero unidades</strong>.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ RETO 2 ══ -->
+<section id="reto2">
+  <div class="container">
+
+    <div class="reto-divider">
+      <div class="line"></div>
+      <div class="tag">Reto 02 / 05</div>
+      <div class="line"></div>
+    </div>
+
+    <div class="reto-header">
+      <div class="reto-num">02</div>
+      <div>
+        <div class="s-label">Series de Tiempo · Window Functions</div>
+        <h2 class="s-title">Variación de Ventas <em>Month-over-Month</em></h2>
+        <div class="s-question">¿Cómo evolucionaron las ventas mes a mes? ¿Dónde están los picos, las caídas y la estacionalidad?</div>
+      </div>
+    </div>
+
+    <div class="sql-wrap">
+      <div class="sql-header">
+        <div class="sql-dots"><div class="sql-dot"></div><div class="sql-dot"></div><div class="sql-dot"></div></div>
+        <div class="sql-filename">reto_02_mom_variacion.sql</div>
+        <div class="sql-lang">PostgreSQL</div>
+      </div>
+      <pre><span class="kw">WITH</span> <span class="tbl">monthly_sales</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 1: Agregar ventas por mes calendario</span>
+    <span class="kw">SELECT</span>
+        <span class="fn">DATE_TRUNC</span>(<span class="str">'month'</span>, o.<span class="col">order_purchase_timestamp</span>)::<span class="kw">DATE</span>  <span class="kw">AS</span> <span class="col">sales_month</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">price</span>)                                           <span class="kw">AS</span> <span class="col">total_revenue</span>,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="col">order_id</span>)                              <span class="kw">AS</span> <span class="col">total_orders</span>
+    <span class="kw">FROM</span>   <span class="tbl">olist_orders_dataset</span>       o
+    <span class="kw">JOIN</span>   <span class="tbl">olist_order_items_dataset</span>  oi <span class="kw">ON</span> o.<span class="col">order_id</span> = oi.<span class="col">order_id</span>
+    <span class="kw">WHERE</span>  o.<span class="col">order_status</span> = <span class="str">'delivered'</span>
+    <span class="kw">GROUP BY</span> <span class="fn">DATE_TRUNC</span>(<span class="str">'month'</span>, o.<span class="col">order_purchase_timestamp</span>)
+),
+<span class="tbl">mom_calc</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 2: Calcular variación % usando LAG para traer el mes anterior</span>
+    <span class="kw">SELECT</span>
+        <span class="col">sales_month</span>,
+        <span class="col">total_revenue</span>,
+        <span class="col">total_orders</span>,
+        <span class="fn">LAG</span>(<span class="col">total_revenue</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">sales_month</span>)  <span class="kw">AS</span> <span class="col">prev_month_revenue</span>,
+        <span class="fn">ROUND</span>(
+            (
+                (<span class="col">total_revenue</span> - <span class="fn">LAG</span>(<span class="col">total_revenue</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">sales_month</span>))
+                / <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(<span class="col">total_revenue</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">sales_month</span>), <span class="op">0</span>)
+            ) * <span class="op">100</span>
+        , <span class="op">2</span>)                                             <span class="kw">AS</span> <span class="col">mom_pct_change</span>
+    <span class="kw">FROM</span> <span class="tbl">monthly_sales</span>
+)
+<span class="kw">SELECT</span>
+    <span class="fn">TO_CHAR</span>(<span class="col">sales_month</span>, <span class="str">'YYYY-MM'</span>)       <span class="kw">AS</span> <span class="col">month</span>,
+    <span class="fn">ROUND</span>(<span class="col">total_revenue</span>::<span class="kw">NUMERIC</span>, <span class="op">2</span>)     <span class="kw">AS</span> <span class="col">total_revenue</span>,
+    <span class="col">total_orders</span>,
+    <span class="fn">ROUND</span>(<span class="col">prev_month_revenue</span>::<span class="kw">NUMERIC</span>, <span class="op">2</span>) <span class="kw">AS</span> <span class="col">prev_month_revenue</span>,
+    <span class="col">mom_pct_change</span>,
+    <span class="cmt">-- Etiqueta semáforo para lectura rápida en reportes</span>
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> <span class="col">mom_pct_change</span> &gt;  <span class="op">10</span>  <span class="kw">THEN</span> <span class="str">'🟢 Crecimiento fuerte'</span>
+        <span class="kw">WHEN</span> <span class="col">mom_pct_change</span> &gt;= <span class="op">0</span>   <span class="kw">THEN</span> <span class="str">'🟡 Crecimiento leve'</span>
+        <span class="kw">WHEN</span> <span class="col">mom_pct_change</span> &gt;= <span class="op">-10</span> <span class="kw">THEN</span> <span class="str">'🟠 Caída leve'</span>
+        <span class="kw">ELSE</span>                           <span class="str">'🔴 Caída fuerte'</span>
+    <span class="kw">END AS</span> <span class="col">trend_label</span>
+<span class="kw">FROM</span> <span class="tbl">mom_calc</span>
+<span class="kw">ORDER BY</span> <span class="col">sales_month</span>;</pre>
+    </div>
+
+    <!-- MoM table -->
+    <div class="dt-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th class="num-cell">Revenue</th>
+            <th class="num-cell">Órdenes</th>
+            <th class="num-cell">MoM %</th>
+            <th>Tendencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2017-01</td><td class="num-cell">$111.798</td><td class="num-cell">—</td><td class="num-cell">—</td><td>—</td></tr>
+          <tr><td>2017-04</td><td class="num-cell">~$290K</td><td class="num-cell">—</td><td class="num-cell" style="color:var(--red)">−5.2%</td><td><span class="trend trend-flat">🟠 Caída leve</span></td></tr>
+          <tr><td>2017-05</td><td class="num-cell">~$415K</td><td class="num-cell">—</td><td class="num-cell" style="color:var(--green-dim)">+43.6%</td><td><span class="trend trend-strong-up">🟢 Crecimiento fuerte</span></td></tr>
+          <tr><td style="font-weight:700">2017-10</td><td class="num-cell" style="font-weight:700">~$648K</td><td class="num-cell">—</td><td class="num-cell">—</td><td><span class="trend trend-up">🟡 Crecimiento leve</span></td></tr>
+          <tr style="background:rgba(0,179,65,0.06)">
+            <td style="font-weight:700;color:var(--green-dim)">2017-11 ★</td>
+            <td class="num-cell" style="font-weight:700;color:var(--green-dim)">$987.765</td>
+            <td class="num-cell" style="font-weight:700">7.289</td>
+            <td class="num-cell" style="font-weight:700;color:var(--green-dim)">+52.4%</td>
+            <td><span class="trend trend-strong-up">🟢 Black Friday</span></td>
+          </tr>
+          <tr style="background:rgba(214,48,48,0.04)">
+            <td>2017-12</td>
+            <td class="num-cell">$726.033</td>
+            <td class="num-cell">—</td>
+            <td class="num-cell" style="color:var(--red)">−26.5%</td>
+            <td><span class="trend trend-strong-down">🔴 Caída fuerte</span></td>
+          </tr>
+          <tr><td>2018-01</td><td class="num-cell">~$826K</td><td class="num-cell">—</td><td class="num-cell">—</td><td><span class="trend trend-up">Estabilización</span></td></tr>
+          <tr><td>2018-06</td><td class="num-cell">—</td><td class="num-cell">—</td><td class="num-cell" style="color:var(--red)">−12.4%</td><td><span class="trend trend-down">🔴 Invierno austral</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Dato atípico:</strong> Septiembre y diciembre de 2016 muestran 1 orden cada uno ($134 y $10 respectivamente). Son artefactos del dataset — no comportamiento real del negocio — y deben excluirse de proyecciones y modelos de forecasting.
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 01</div>
+        <div class="finding-text"><strong>Noviembre 2017 fue el mes cumbre: $987.765 y 7.289 órdenes.</strong> Black Friday brasileño (Sexta-feira Negra) con crecimiento MoM de +52.4%. Único mes que superó los $900K en toda la serie.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 02</div>
+        <div class="finding-text"><strong>Diciembre 2017 cayó un 26.5% inmediatamente después.</strong> La demanda se adelantó masivamente al Black Friday — patrón clásico de canibalización post-promoción en e-commerce.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 03</div>
+        <div class="finding-text"><strong>El negocio creció 8.8× en 2017</strong> (de $111K en enero a $987K en noviembre). El único mes negativo significativo fue abril (−5.2%), corregido en mayo (+43.6%).</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 04</div>
+        <div class="finding-text"><strong>2018 muestra estabilización entre $826K y $977K</strong> sin recuperar el pico de noviembre. Junio 2018 registra la mayor caída del año: −12.4%, coincidiendo con inicio del invierno austral.</div>
+      </div>
+    </div>
+
+    <div class="reco">
+      <div class="reco-team">→ Growth + Comercial</div>
+      <div class="reco-text">
+        Anticipar el <strong>Black Friday con al menos 6 semanas de antelación</strong>: negociación de stock adicional con sellers, activación de campañas de awareness en octubre, y límites de descuento que no canibalicen diciembre. Dado que <strong>junio–agosto muestra caídas recurrentes (−12.4%, −3.4%)</strong>, ese trimestre es el indicado para probar campañas de reactivación de demanda (cuotas sin interés, envío gratis) que amortigüen la estacionalidad invernal. La estabilización de 2018 sugiere que el negocio está madurando y las palancas de crecimiento ya no son puramente orgánicas.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ RETO 3 ══ -->
+<section id="reto3">
+  <div class="container">
+
+    <div class="reto-divider">
+      <div class="line"></div>
+      <div class="tag">Reto 03 / 05</div>
+      <div class="line"></div>
+    </div>
+
+    <div class="reto-header">
+      <div class="reto-num">03</div>
+      <div>
+        <div class="s-label">CRM · Segmentación · DENSE_RANK</div>
+        <h2 class="s-title">Ranking de Clientes <em>por Ingresos</em></h2>
+        <div class="s-question">¿Quiénes son los clientes que más revenue generan? ¿Qué perfil de compra tienen?</div>
+      </div>
+    </div>
+
+    <div class="sql-wrap">
+      <div class="sql-header">
+        <div class="sql-dots"><div class="sql-dot"></div><div class="sql-dot"></div><div class="sql-dot"></div></div>
+        <div class="sql-filename">reto_03_ranking_clientes.sql</div>
+        <div class="sql-lang">PostgreSQL</div>
+      </div>
+      <pre><span class="kw">WITH</span> <span class="tbl">customer_revenue</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 1: Consolidar revenue por cliente único</span>
+    <span class="kw">SELECT</span>
+        c.<span class="col">customer_unique_id</span>,
+        c.<span class="col">customer_city</span>,
+        c.<span class="col">customer_state</span>,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="col">order_id</span>)          <span class="kw">AS</span> <span class="col">total_orders</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">price</span>)                       <span class="kw">AS</span> <span class="col">total_revenue</span>,
+        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(oi.<span class="col">price</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>)   <span class="kw">AS</span> <span class="col">avg_order_value</span>,
+        <span class="fn">MIN</span>(o.<span class="col">order_purchase_timestamp</span>)     <span class="kw">AS</span> <span class="col">first_purchase</span>,
+        <span class="fn">MAX</span>(o.<span class="col">order_purchase_timestamp</span>)     <span class="kw">AS</span> <span class="col">last_purchase</span>
+    <span class="kw">FROM</span>   <span class="tbl">olist_orders_dataset</span>           o
+    <span class="kw">JOIN</span>   <span class="tbl">olist_order_items_dataset</span>      oi  <span class="kw">ON</span> o.<span class="col">order_id</span>    = oi.<span class="col">order_id</span>
+    <span class="kw">JOIN</span>   <span class="tbl">olist_customers_dataset</span>        c   <span class="kw">ON</span> o.<span class="col">customer_id</span> = c.<span class="col">customer_id</span>
+    <span class="kw">WHERE</span>  o.<span class="col">order_status</span> = <span class="str">'delivered'</span>
+    <span class="kw">GROUP BY</span>
+        c.<span class="col">customer_unique_id</span>,
+        c.<span class="col">customer_city</span>,
+        c.<span class="col">customer_state</span>
+)
+<span class="kw">SELECT</span>
+    <span class="cmt">-- Ranking por revenue total descendente</span>
+    <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">total_revenue</span> <span class="kw">DESC</span>)  <span class="kw">AS</span> <span class="col">revenue_rank</span>,
+    <span class="col">customer_unique_id</span>,
+    <span class="col">customer_city</span>,
+    <span class="col">customer_state</span>,
+    <span class="col">total_orders</span>,
+    <span class="fn">ROUND</span>(<span class="col">total_revenue</span>::<span class="kw">NUMERIC</span>, <span class="op">2</span>)    <span class="kw">AS</span> <span class="col">total_revenue</span>,
+    <span class="col">avg_order_value</span>,
+    <span class="fn">TO_CHAR</span>(<span class="col">first_purchase</span>, <span class="str">'YYYY-MM-DD'</span>) <span class="kw">AS</span> <span class="col">first_purchase</span>,
+    <span class="fn">TO_CHAR</span>(<span class="col">last_purchase</span>,  <span class="str">'YYYY-MM-DD'</span>) <span class="kw">AS</span> <span class="col">last_purchase</span>
+<span class="kw">FROM</span> <span class="tbl">customer_revenue</span>
+<span class="kw">ORDER BY</span> <span class="col">revenue_rank</span>
+<span class="kw">LIMIT</span> <span class="op">10</span>;</pre>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="n">$13.440</div>
+        <div class="l">Revenue cliente #1 (1 sola orden, 8 ítems)</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">9<em>/10</em></div>
+        <div class="l">Clientes top con exactamente 1 compra</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">3<em>/10</em></div>
+        <div class="l">Clientes top ubicados en Río de Janeiro</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">3×</div>
+        <div class="l">Brecha entre cliente #1 ($13.440) y #10 ($4.400)</div>
+      </div>
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 01</div>
+        <div class="finding-text"><strong>El cliente #1 generó $13.440 en una sola orden</strong>, compuesta por 8 ítems con valor promedio de $1.680 cada uno. Compró una sola vez en septiembre de 2017 (Río de Janeiro).</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 02</div>
+        <div class="finding-text"><strong>9 de 10 clientes top realizaron exactamente 1 orden.</strong> Solo el #2 tiene 2 compras. Los mayores gastadores son compradores de alto ticket y baja frecuencia — no clientes recurrentes fidelizados.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 03</div>
+        <div class="finding-text"><strong>Rio de Janeiro concentra 3 de los 10 primeros</strong> (ranks 1, 2 y 10), con tickets de $13.440, $7.388 y $4.400 respectivamente. Mayor presencia de clientes VIP por revenue individual.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 04</div>
+        <div class="finding-text"><strong>El cliente #4 (Campo Grande, MS) pagó $6.735 en una sola transacción</strong> — un artículo de alto valor en ciudad secundaria, con gasto equivalente al de los grandes centros urbanos.</div>
+      </div>
+    </div>
+
+    <div class="reco">
+      <div class="reco-team">→ CRM</div>
+      <div class="reco-text">
+        Crear un <strong>segmento VIP basado en gasto total acumulado, no en frecuencia de compra</strong>. El insight crítico: estos clientes no repiten — pero no por mala experiencia, sino porque compraron un ítem de alta inversión con ciclo de recompra largo. Acción concreta: <strong>secuencia de retención a los 90, 180 y 365 días post-compra</strong> con categorías complementarias (accesorios, garantías extendidas, productos relacionados). Dado el peso de RJ en este segmento, las campañas de upselling dirigidas a ese estado tendrían retorno desproporcionado.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ RETO 4 ══ -->
+<section id="reto4">
+  <div class="container">
+
+    <div class="reto-divider">
+      <div class="line"></div>
+      <div class="tag">Reto 04 / 05</div>
+      <div class="line"></div>
+    </div>
+
+    <div class="reto-header">
+      <div class="reto-num">04</div>
+      <div>
+        <div class="s-label">Análisis de Pareto · Window Functions</div>
+        <h2 class="s-title">Participación por <em>Categoría de Producto</em></h2>
+        <div class="s-question">¿Qué categorías concentran el revenue? ¿Se cumple el principio de Pareto?</div>
+      </div>
+    </div>
+
+    <div class="sql-wrap">
+      <div class="sql-header">
+        <div class="sql-dots"><div class="sql-dot"></div><div class="sql-dot"></div><div class="sql-dot"></div></div>
+        <div class="sql-filename">reto_04_participacion_categorias.sql</div>
+        <div class="sql-lang">PostgreSQL</div>
+      </div>
+      <pre><span class="kw">WITH</span> <span class="tbl">category_revenue</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 1: Revenue por categoría (traducida al inglés)</span>
+    <span class="kw">SELECT</span>
+        <span class="fn">COALESCE</span>(ct.<span class="col">product_category_name_english</span>,
+                 p.<span class="col">product_category_name</span>,
+                 <span class="str">'Unknown'</span>)          <span class="kw">AS</span> <span class="col">category</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">price</span>)                <span class="kw">AS</span> <span class="col">category_revenue</span>,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> oi.<span class="col">product_id</span>) <span class="kw">AS</span> <span class="col">unique_products</span>,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="col">order_id</span>)   <span class="kw">AS</span> <span class="col">total_orders</span>
+    <span class="kw">FROM</span>   <span class="tbl">olist_orders_dataset</span>               o
+    <span class="kw">JOIN</span>   <span class="tbl">olist_order_items_dataset</span>          oi  <span class="kw">ON</span> o.<span class="col">order_id</span>    = oi.<span class="col">order_id</span>
+    <span class="kw">JOIN</span>   <span class="tbl">olist_products_dataset</span>             p   <span class="kw">ON</span> oi.<span class="col">product_id</span> = p.<span class="col">product_id</span>
+    <span class="kw">LEFT JOIN</span> <span class="tbl">product_category_name_translation</span> ct
+                                                <span class="kw">ON</span> p.<span class="col">product_category_name</span> = ct.<span class="col">product_category_name</span>
+    <span class="kw">WHERE</span>  o.<span class="col">order_status</span> = <span class="str">'delivered'</span>
+    <span class="kw">GROUP BY</span>
+        ct.<span class="col">product_category_name_english</span>,
+        p.<span class="col">product_category_name</span>
+)
+<span class="kw">SELECT</span>
+    <span class="col">category</span>,
+    <span class="fn">ROUND</span>(<span class="col">category_revenue</span>::<span class="kw">NUMERIC</span>, <span class="op">2</span>)  <span class="kw">AS</span> <span class="col">category_revenue</span>,
+    <span class="col">total_orders</span>,
+    <span class="col">unique_products</span>,
+    <span class="cmt">-- SUM() OVER () sin partición = gran total de todas las categorías</span>
+    <span class="fn">ROUND</span>(
+        (<span class="col">category_revenue</span> / <span class="fn">SUM</span>(<span class="col">category_revenue</span>) <span class="kw">OVER</span> ()) * <span class="op">100</span>
+    , <span class="op">2</span>)                                 <span class="kw">AS</span> <span class="col">revenue_share_pct</span>,
+    <span class="cmt">-- Revenue acumulado para análisis Pareto</span>
+    <span class="fn">ROUND</span>(
+        <span class="fn">SUM</span>(<span class="col">category_revenue</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">category_revenue</span> <span class="kw">DESC</span>)
+        / <span class="fn">SUM</span>(<span class="col">category_revenue</span>) <span class="kw">OVER</span> () * <span class="op">100</span>
+    , <span class="op">2</span>)                                 <span class="kw">AS</span> <span class="col">cumulative_pct</span>
+<span class="kw">FROM</span> <span class="tbl">category_revenue</span>
+<span class="kw">ORDER BY</span> <span class="col">category_revenue</span> <span class="kw">DESC</span>;</pre>
+    </div>
+
+    <!-- Pareto table -->
+    <div class="dt-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th class="num-cell">Revenue</th>
+            <th class="num-cell">Share %</th>
+            <th class="num-cell">Acumulado %</th>
+            <th>Distribución</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:rgba(0,179,65,0.05)">
+            <td class="name">Health &amp; Beauty</td>
+            <td class="num-cell">$1.233M</td>
+            <td class="num-cell" style="color:var(--green-dim);font-weight:700">9.33%</td>
+            <td class="num-cell">9.33%</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div></td>
+          </tr>
+          <tr>
+            <td class="name">Watches &amp; Gifts</td>
+            <td class="num-cell">$1.166M</td>
+            <td class="num-cell">8.82%</td>
+            <td class="num-cell">18.15%</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:94%"></div></div></div></td>
+          </tr>
+          <tr>
+            <td class="name">Bed, Bath &amp; Table</td>
+            <td class="num-cell">$1.023M</td>
+            <td class="num-cell">7.74%</td>
+            <td class="num-cell">25.89%</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:83%"></div></div></div></td>
+          </tr>
+          <tr>
+            <td class="name">Computers Accessories</td>
+            <td class="num-cell">—</td>
+            <td class="num-cell">—</td>
+            <td class="num-cell">—</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill amber" style="width:55%"></div></div></div></td>
+          </tr>
+          <tr>
+            <td class="name">Computers</td>
+            <td class="num-cell">$218.684</td>
+            <td class="num-cell">1.65%</td>
+            <td class="num-cell">—</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill amber" style="width:18%"></div></div></div></td>
+          </tr>
+          <tr style="background:rgba(214,48,48,0.04)">
+            <td class="name"><em style="color:var(--ink3)">Unknown (sin categoría)</em></td>
+            <td class="num-cell">$170.727</td>
+            <td class="num-cell" style="color:var(--red)">1.29%</td>
+            <td class="num-cell">—</td>
+            <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill red" style="width:14%"></div></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Principio de Pareto confirmado:</strong> 18 categorías concentran el 80% del revenue. El restante 20% está distribuido entre 56 categorías, muchas con participaciones menores al 0.5%. Las últimas 10 aportan menos del 0.1% cada una (security_and_services: $283 · fashion_childrens_clothes: $520 · pc_gamer: $1.307).
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 01</div>
+        <div class="finding-text"><strong>Health &amp; Beauty lidera con 9.33% del revenue total ($1.233M)</strong>, seguida de Watches &amp; Gifts (8.82%) y Bed, Bath &amp; Table (7.74%). Solo estas tres explican el 25.89% del negocio.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 02</div>
+        <div class="finding-text"><strong>Computers: 177 órdenes pero $218.684 en revenue (1.65%)</strong> — ticket promedio por orden de ~$1.235. La categoría de mayor valor unitario en el top 20 con potencial significativo si se escala el volumen.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 03</div>
+        <div class="finding-text"><strong>"Unknown" acumula $170.727 en revenue real</strong> (1.392 órdenes, 584 productos sin categoría). Revenue que el negocio no puede atribuir ni optimizar por segmento — punto ciego de datos.</div>
+      </div>
+    </div>
+
+    <div class="reco">
+      <div class="reco-team">→ Comercial</div>
+      <div class="reco-text">
+        Enfocar el <strong>80% del presupuesto de captación de sellers y marketing en las 18 categorías que explican el 80% del revenue</strong>. Health &amp; Beauty, Watches &amp; Gifts y Bed &amp; Bath merecen managers de categoría dedicados y acuerdos de exclusividad con sellers top. Para Computers, el objetivo no es margen sino volumen — una <strong>estrategia de cuotas sin interés</strong> puede mover el ticket promedio hacia más órdenes. La categoría "Unknown" requiere una <strong>campaña de normalización de datos con los sellers</strong>: cada producto sin categoría es revenue invisible que no se puede escalar ni segmentar.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ RETO 5 ══ -->
+<section id="reto5">
+  <div class="container">
+
+    <div class="reto-divider">
+      <div class="line"></div>
+      <div class="tag">Reto 05 / 05 · Análisis Libre</div>
+      <div class="line"></div>
+    </div>
+
+    <div class="reto-header">
+      <div class="reto-num">05</div>
+      <div>
+        <div class="s-label">Geografía · NTILE · Logística</div>
+        <h2 class="s-title">Ticket Promedio <em>por Estado</em></h2>
+        <div class="s-question">¿En qué estados de Brasil el ticket promedio por orden es más alto? ¿Cómo se distribuyen los estados en cuartiles de valor?</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-bottom:2rem">
+      <strong>Justificación de la pregunta:</strong> El ticket promedio por estado revela dónde el cliente ya tiene alta disposición de pago, independientemente del volumen de órdenes. Combinado con el desglose de flete, permite identificar si el gasto elevado responde a preferencia de producto o simplemente al costo logístico que el comprador absorbe. Dato directo para que Growth y Supply Chain tomen decisiones de expansión con base geográfica real.
+    </div>
+
+    <div class="sql-wrap">
+      <div class="sql-header">
+        <div class="sql-dots"><div class="sql-dot"></div><div class="sql-dot"></div><div class="sql-dot"></div></div>
+        <div class="sql-filename">reto_05_ticket_por_estado.sql</div>
+        <div class="sql-lang">PostgreSQL</div>
+      </div>
+      <pre><span class="kw">WITH</span> <span class="tbl">order_totals</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 1: Calcular el valor total de cada orden (precio + flete)</span>
+    <span class="cmt">--         El flete es parte del gasto real del cliente y es</span>
+    <span class="cmt">--         relevante geográficamente: estados lejanos pagan más.</span>
+    <span class="kw">SELECT</span>
+        o.<span class="col">order_id</span>,
+        c.<span class="col">customer_state</span>,
+        c.<span class="col">customer_city</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">price</span>)          <span class="kw">AS</span> <span class="col">items_revenue</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">freight_value</span>)  <span class="kw">AS</span> <span class="col">freight_cost</span>,
+        <span class="fn">SUM</span>(oi.<span class="col">price</span> + oi.<span class="col">freight_value</span>) <span class="kw">AS</span> <span class="col">order_total</span>
+    <span class="kw">FROM</span>   <span class="tbl">olist_orders_dataset</span>           o
+    <span class="kw">JOIN</span>   <span class="tbl">olist_order_items_dataset</span>      oi  <span class="kw">ON</span> o.<span class="col">order_id</span>    = oi.<span class="col">order_id</span>
+    <span class="kw">JOIN</span>   <span class="tbl">olist_customers_dataset</span>        c   <span class="kw">ON</span> o.<span class="col">customer_id</span> = c.<span class="col">customer_id</span>
+    <span class="kw">WHERE</span>  o.<span class="col">order_status</span> = <span class="str">'delivered'</span>
+    <span class="kw">GROUP BY</span> o.<span class="col">order_id</span>, c.<span class="col">customer_state</span>, c.<span class="col">customer_city</span>
+),
+<span class="tbl">state_metrics</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 2: Agregar métricas por estado</span>
+    <span class="kw">SELECT</span>
+        <span class="col">customer_state</span>,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="col">order_id</span>)            <span class="kw">AS</span> <span class="col">total_orders</span>,
+        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="col">order_total</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>) <span class="kw">AS</span> <span class="col">avg_ticket</span>,
+        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="col">items_revenue</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>) <span class="kw">AS</span> <span class="col">avg_items_value</span>,
+        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="col">freight_cost</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>)  <span class="kw">AS</span> <span class="col">avg_freight</span>,
+        <span class="fn">ROUND</span>(<span class="fn">SUM</span>(<span class="col">order_total</span>)::<span class="kw">NUMERIC</span>, <span class="op">2</span>)   <span class="kw">AS</span> <span class="col">total_revenue</span>
+    <span class="kw">FROM</span> <span class="tbl">order_totals</span>
+    <span class="kw">GROUP BY</span> <span class="col">customer_state</span>
+),
+<span class="tbl">state_ranked</span> <span class="kw">AS</span> (
+    <span class="cmt">-- Paso 3: Ranking y cuartiles de ticket promedio</span>
+    <span class="kw">SELECT</span>
+        <span class="col">customer_state</span>, <span class="col">total_orders</span>, <span class="col">avg_ticket</span>,
+        <span class="col">avg_items_value</span>, <span class="col">avg_freight</span>, <span class="col">total_revenue</span>,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">avg_ticket</span> <span class="kw">DESC</span>)   <span class="kw">AS</span> <span class="col">ticket_rank</span>,
+        <span class="cmt">-- Cuartil: Q1 = estados con ticket más alto, Q4 = más bajo</span>
+        <span class="fn">NTILE</span>(<span class="op">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="col">avg_ticket</span> <span class="kw">DESC</span>)  <span class="kw">AS</span> <span class="col">ticket_quartile</span>
+    <span class="kw">FROM</span> <span class="tbl">state_metrics</span>
+)
+<span class="kw">SELECT</span>
+    <span class="col">ticket_rank</span>, <span class="col">customer_state</span>, <span class="col">total_orders</span>, <span class="col">avg_ticket</span>,
+    <span class="col">avg_items_value</span>, <span class="col">avg_freight</span>, <span class="col">total_revenue</span>,
+    <span class="cmt">-- Etiqueta del cuartil para legibilidad ejecutiva</span>
+    <span class="kw">CASE</span> <span class="col">ticket_quartile</span>
+        <span class="kw">WHEN</span> <span class="op">1</span> <span class="kw">THEN</span> <span class="str">'Q1 — Alto valor'</span>
+        <span class="kw">WHEN</span> <span class="op">2</span> <span class="kw">THEN</span> <span class="str">'Q2 — Valor medio-alto'</span>
+        <span class="kw">WHEN</span> <span class="op">3</span> <span class="kw">THEN</span> <span class="str">'Q3 — Valor medio-bajo'</span>
+        <span class="kw">WHEN</span> <span class="op">4</span> <span class="kw">THEN</span> <span class="str">'Q4 — Bajo valor'</span>
+    <span class="kw">END AS</span> <span class="col">value_segment</span>
+<span class="kw">FROM</span> <span class="tbl">state_ranked</span>
+<span class="kw">ORDER BY</span> <span class="col">ticket_rank</span>;</pre>
+    </div>
+
+    <!-- States table -->
+    <div class="dt-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Estado</th>
+            <th class="num-cell">Órdenes</th>
+            <th class="num-cell">Ticket Promedio</th>
+            <th class="num-cell">Flete Prom.</th>
+            <th class="num-cell">% Flete/Ticket</th>
+            <th>Segmento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:rgba(0,179,65,0.06)">
+            <td style="color:var(--green-dim);font-weight:700">01</td>
+            <td class="name" style="font-weight:700">Paraíba (PB)</td>
+            <td class="num-cell">517</td>
+            <td class="num-cell" style="color:var(--green-dim);font-weight:700">$266.61</td>
+            <td class="num-cell">~$42</td>
+            <td class="num-cell">~15.8%</td>
+            <td><span class="trend trend-strong-up">Q1 — Alto valor</span></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td class="name">Acre (AC)</td>
+            <td class="num-cell">80</td>
+            <td class="num-cell">$244</td>
+            <td class="num-cell">~$49</td>
+            <td class="num-cell">~20.1%</td>
+            <td><span class="trend trend-strong-up">Q1 — Alto valor</span></td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td class="name">Amapá (AP)</td>
+            <td class="num-cell">67</td>
+            <td class="num-cell">$240</td>
+            <td class="num-cell">~$46</td>
+            <td class="num-cell">~19.2%</td>
+            <td><span class="trend trend-strong-up">Q1 — Alto valor</span></td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td class="name">Alagoas (AL)</td>
+            <td class="num-cell">—</td>
+            <td class="num-cell">~$234</td>
+            <td class="num-cell">~$44</td>
+            <td class="num-cell">~18.8%</td>
+            <td><span class="trend trend-strong-up">Q1 — Alto valor</span></td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td class="name">Rondônia (RO)</td>
+            <td class="num-cell">—</td>
+            <td class="num-cell">$234.43</td>
+            <td class="num-cell">$46.43</td>
+            <td class="num-cell" style="color:var(--amber)">19.8%</td>
+            <td><span class="trend trend-strong-up">Q1 — Alto valor</span></td>
+          </tr>
+          <tr style="background:rgba(214,48,48,0.04)">
+            <td style="color:var(--red)">27</td>
+            <td class="name">São Paulo (SP)</td>
+            <td class="num-cell" style="color:var(--green-dim);font-weight:700">40.501</td>
+            <td class="num-cell" style="color:var(--red)">$142.46</td>
+            <td class="num-cell">$17.33</td>
+            <td class="num-cell">12.2%</td>
+            <td><span class="trend trend-down">Q4 — Bajo valor</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 01</div>
+        <div class="finding-text"><strong>Paraíba (PB) lidera con $266.61 de ticket promedio</strong>, superando en 87% a São Paulo ($142.46). PB tiene 517 órdenes — volumen modesto pero clientes de alto valor unitario comprobado.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 02</div>
+        <div class="finding-text"><strong>Los 7 estados del Q1 son todos del Norte o Nordeste</strong> (PB, AC, AP, AL, RO, PA, PI). Flete promedio entre $38 y $49 vs $17 en SP. El cliente remoto compra menos veces pero consolida más necesidades por orden.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 03</div>
+        <div class="finding-text"><strong>SP tiene 40.501 órdenes — 78× más que Amapá (67)</strong> — pero el ticket más bajo y el flete más barato. Revenue total de $5.769.703, la mayor contribución absoluta. Motor de volumen, no de ticket.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">// HALLAZGO 04</div>
+        <div class="finding-text"><strong>El flete en Norte/Nordeste representa 19–22% del ticket total</strong> vs solo 12% en SP. Es una barrera de conversión diferenciada por región — subsidiar el flete tiene ROI positivo comprobable donde el ticket ya es alto.</div>
+      </div>
+    </div>
+
+    <div class="reco">
+      <div class="reco-team">→ Logística + Growth</div>
+      <div class="reco-text">
+        Estrategia geográfica en dos velocidades: <strong>(1) Para estados Q1 del Norte/Nordeste (PB, AC, AP, AL, RO)</strong>, implementar subsidio de envío o umbrales de envío gratis más bajos — dado que el ticket ya es alto, absorber parte del flete tiene ROI positivo en conversión; <strong>(2) Para São Paulo y estados Q4</strong>, la palanca no es el flete sino la frecuencia — programas de suscripción, cashback o recompra automática dirigidos al segmento más activo. <strong>Acre y Amapá merecen un piloto de expansión logística</strong>: el cliente ya paga precios altos, solo falta reducir el tiempo de entrega para destrabar demanda latente.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ CONCLUSIÓN ══ -->
+<section id="conclusion" style="border-bottom:none">
+  <div class="container">
+    <div class="s-label">Conclusión General</div>
+    <h2 class="s-title">El negocio en <em>cinco hallazgos clave</em></h2>
+
+    <div class="conclusion-block">
+      <h3>Olist 2016–2018: crecimiento acelerado en fase de maduración</h3>
+
+      <p>El motor del revenue es <strong>dual</strong>: categorías de alto ticket y frecuencia media (Health &amp; Beauty, Watches &amp; Gifts) coexisten con productos de volumen masivo y ticket bajo (Bed &amp; Bath, Furniture), lo que confiere estabilidad estructural al catálogo.</p>
+
+      <p>La <strong>concentración geográfica en São Paulo</strong> es el mayor activo en términos de volumen, pero los estados del Norte y Nordeste esconden la mayor disposición de pago por orden — una oportunidad logística no explotada con ROI comprobable si se reduce la fricción del flete.</p>
+
+      <p>El <strong>perfil de los clientes top</strong> (compradores únicos de alto ticket) señala que el desafío central no es adquisición sino retención: convertir una compra de $13.000 en una relación de largo plazo requiere CRM activo orientado al ciclo de recompra del producto, no solo un buen checkout.</p>
+
+      <p>El <strong>pico de noviembre 2017 (+52.4% MoM)</strong> confirma que el Black Friday es el evento comercial más relevante del año y debe planificarse con meses de anticipación para maximizar el impacto sin canibalizar diciembre.</p>
+
+      <p>Finalmente, <strong>$170.727 en revenue "Unknown"</strong> (productos sin categoría asignada) representa el punto ciego más fácil de corregir — y con mayor impacto inmediato en la capacidad del negocio de segmentar, escalar y atribuir correctamente sus ventas.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-left">
+    <img class="footer-logo" src="data:image/jpeg;base64,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" alt="MCOY">
+    <div class="footer-text">
+      MCOY · AI + Data Strategy<br>
+      Manuel Alberto Coy Benavides · Mayo 2026
+    </div>
+  </div>
+  <div class="footer-right">
+    DataHackers Academy<br>
+    AI Data Engineer Bootcamp · Sesión 02<br>
+    PostgreSQL 18 · Olist · Kaggle
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
